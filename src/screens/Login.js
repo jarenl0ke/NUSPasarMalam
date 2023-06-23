@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   StyleSheet,
   TouchableWithoutFeedback,
-  View,
+  KeyboardAvoidingView,
   Text,
   Keyboard,
   Image,
@@ -27,7 +27,10 @@ const Login = () => {
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
-      <View style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
         <Text style={styles.header}>NUS Pasar Malam</Text>
         <Image
           source={require("../../assets/marketplace.png")}
@@ -55,7 +58,7 @@ const Login = () => {
         <TouchableOpacity style={styles.signupButton} onPress={handleLogin}>
           <Text style={styles.signupButtonText}>Create a new account</Text>
         </TouchableOpacity>
-      </View>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 };
