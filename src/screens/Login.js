@@ -1,10 +1,11 @@
 import React from "react";
 import {
-  StyleSheet,
-  Text,
-  View,
   TouchableWithoutFeedback,
+  View,
+  Text,
   Keyboard,
+  Image,
+  StyleSheet,
 } from "react-native";
 
 const Login = () => {
@@ -16,6 +17,10 @@ const Login = () => {
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
         <Text style={styles.header}>NUS Pasar Malam</Text>
+        <Image
+          source={require("../../assets/marketplace.png")}
+          style={styles.logo}
+        />
       </View>
     </TouchableWithoutFeedback>
   );
@@ -34,6 +39,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 28,
     textAlign: "center",
+    marginBottom: 30,
+  },
+  logo: {
+    height: 150,
+    width: 150,
     marginBottom: 30,
   },
 });
