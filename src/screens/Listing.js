@@ -20,6 +20,8 @@ const Listing = ({ navigation }) => {
   const route = useRoute();
   const { listing } = route.params;
   const [fullscreenImage, setFullscreenImage] = useState(null);
+  const [listingTime, setListingTime] = useState(null);
+  const currentUserID = firebase.auth().currentUser.uid;
 
   const handleGoBack = () => {
     navigation.goBack();
@@ -27,6 +29,34 @@ const Listing = ({ navigation }) => {
 
   const handleImageClick = (imageUrl) => {
     setFullscreenImage(imageUrl);
+  };
+
+  const showDeleteButton = listing.userID === currentUserID;
+
+  const handleDeleteListing = () => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this listing?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: deleteListing },
+      ]
+    );
+  };
+
+  const deleteListing = async () => {
+    try {
+      await firebase
+        .firestore()
+        .collection("Listings")
+        .doc(listing.id)
+        .delete();
+      Alert.alert("Listing deleted successfully.");
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error deleting listing:", error);
+      Alert.alert("An error occurred while deleting the listing.");
+    }
   };
 
   return (
@@ -49,6 +79,34 @@ const Listing = ({ navigation }) => {
               </TouchableOpacity>
             ))}
           </ScrollView>
+        </View>
+        <View style={styles.listingDetailsContainer}>
+          <Text style={styles.listingTitle}>{listing.listingTitle}</Text>
+          <Text style={styles.detailText}>
+            <Text style={styles.label}>Price:</Text> ${listing.price}
+          </Text>
+          <Text style={styles.detailText}>
+            <Text style={styles.label}>Category:</Text> {listing.category}
+          </Text>
+          <Text style={styles.detailText}>
+            <Text style={styles.label}>Condition:</Text> {listing.condition}
+          </Text>
+          <Text style={styles.detailText}>
+            <Text style={styles.label}>Description:</Text> {"\n"}
+            {listing.description}
+          </Text>
+          <Text style={styles.listingTime}>
+            {"\n"}
+            {listingTime}
+          </Text>
+          {showDeleteButton && (
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={handleDeleteListing}
+            >
+              <Text style={styles.deleteButtonText}>Delete Listing</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -81,6 +139,44 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     marginRight: 10,
     borderRadius: 5,
+  },
+  listingDetailsContainer: {
+    padding: 10,
+    backgroundColor: "#1E1E1E",
+    borderRadius: 5,
+  },
+  listingTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginBottom: 10,
+  },
+  detailText: {
+    fontSize: 16,
+    color: "#FFFFFF",
+    marginBottom: 10,
+  },
+  label: {
+    color: "#87CEEB",
+    fontWeight: "bold",
+    marginRight: 5,
+  },
+  listingTime: {
+    fontSize: 14,
+    color: "#FFFFFF",
+    marginBottom: 10,
+  },
+  deleteButton: {
+    backgroundColor: "#FF0000",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  deleteButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
 
