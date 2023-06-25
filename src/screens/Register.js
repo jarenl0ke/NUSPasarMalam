@@ -31,6 +31,7 @@ const Register = ({ navigation }) => {
           <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
             <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
+          <Text style={styles.header}>Register</Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -52,6 +53,33 @@ const styles = StyleSheet.create({
     left: 20,
     zIndex: 1,
     padding: 10,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 80,
+    marginBottom: 40,
+    textAlign: "center",
+    color: "#FFFFFF",
+  },
+  fieldContainer: {
+    marginBottom: 20,
+    paddingHorizontal: 30,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#FFFFFF",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#DDD",
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+    color: "#FFFFFF",
+    backgroundColor: "#111111",
   },
 });
 
