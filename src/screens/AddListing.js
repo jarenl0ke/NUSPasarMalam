@@ -58,6 +58,38 @@ const AddListing = ({ navigation }) => {
     navigation.goBack();
   };
 
+  // To Remove an Image
+  const handleRemoveImage = (index) => {
+    const updatedImages = [...selectedImages];
+    updatedImages.splice(index, 1);
+    setSelectedImages(updatedImages);
+  };
+
+  // To Pick Image
+  const handleImagePicker = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access the camera roll is required!");
+      return;
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+    });
+
+    if (!pickerResult.canceled) {
+      const selectedAssets = pickerResult.assets.map((asset) => ({
+        uri: asset.uri,
+        width: asset.width,
+        height: asset.height,
+      }));
+
+      setSelectedImages([...selectedImages, ...selectedAssets]);
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -65,6 +97,48 @@ const AddListing = ({ navigation }) => {
           <AntDesign name="arrowleft" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.pageHeader}>Add Listing</Text>
+        <View style={styles.carouselContainer}>
+          <ScrollView
+            horizontal
+            contentContainerStyle={styles.carouselScrollView}
+            showsHorizontalScrollIndicator={false}
+          >
+            {selectedImages.map((image, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.imageContainer}
+                onPress={() => handleRemoveImage(index)}
+              >
+                <Image
+                  source={{ uri: image.uri }}
+                  style={styles.imagePreview}
+                />
+                <View style={styles.removeImageButton}>
+                  <AntDesign
+                    name="close"
+                    size={16}
+                    color="#FFFFFF"
+                    style={styles.removeImageIcon}
+                  />
+                </View>
+              </TouchableOpacity>
+            ))}
+            {selectedImages.length < 7 && (
+              <TouchableOpacity
+                style={styles.addMorePhotosButton}
+                onPress={handleImagePicker}
+              >
+                <AntDesign
+                  name="plus"
+                  size={24}
+                  color="#FFFFFF"
+                  style={styles.addMorePhotosIcon}
+                />
+                <Text style={styles.addMorePhotosText}>Add More Photos</Text>
+              </TouchableOpacity>
+            )}
+          </ScrollView>
+        </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -87,6 +161,55 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     marginTop: 50,
     marginBottom: 30,
+    textAlign: "center",
+  },
+  carouselContainer: {
+    height: 120,
+    marginBottom: 30,
+  },
+  carouselScrollView: {
+    alignItems: "center",
+  },
+  imageContainer: {
+    position: "relative",
+    marginRight: 10,
+    width: 80,
+    height: 80,
+  },
+  imagePreview: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 10,
+  },
+  removeImageButton: {
+    position: "absolute",
+    top: -10,
+    right: -10,
+    backgroundColor: "#FF0000",
+    borderRadius: 20,
+    padding: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
+  },
+  removeImageIcon: {
+    fontSize: 16,
+  },
+  addMorePhotosButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    height: 80,
+    backgroundColor: "#1E90FF",
+    borderRadius: 10,
+  },
+  addMorePhotosIcon: {
+    marginBottom: 5,
+  },
+  addMorePhotosText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "bold",
     textAlign: "center",
   },
 });
