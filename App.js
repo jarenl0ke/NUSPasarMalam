@@ -10,6 +10,7 @@ import EditProfile from "./src/screens/EditProfile";
 import MyListings from "./src/screens/MyListings";
 import AddListing from "./src/screens/AddListing";
 import AllListings from "./src/screens/AllListings";
+import Listing from "./src/screens/Listing";
 
 const Stack = createStackNavigator();
 
@@ -58,6 +59,11 @@ export default function App() {
         <Stack.Screen
           name="AllListings"
           component={AllListings}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Listing"
+          component={Listing}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
