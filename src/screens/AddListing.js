@@ -1,14 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
   KeyboardAvoidingView,
-  View,
+  TouchableOpacity,
   Text,
+  View,
   ScrollView,
   Image,
-  TouchableOpacity,
   TextInput,
   Alert,
 } from "react-native";
@@ -41,12 +41,23 @@ const categories = [
   "Food & Beverages",
 ];
 
-// To navigate to previous screen
-const handleGoBack = () => {
-  navigation.goBack();
-};
-
 const AddListing = ({ navigation }) => {
+  // States to track
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [category, setCategory] = useState("");
+  const [listingTitle, setListingTitle] = useState("");
+  const [condition, setCondition] = useState(null);
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [userId, setUserId] = useState("");
+  const [listingDateTime, setListingDateTime] = useState("");
+
+  // To navigate to previous screen
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
