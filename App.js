@@ -5,6 +5,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Login from "./src/screens/Login";
 import Home from "./src/screens/Home";
 import Settings from "./src/screens/Settings";
+import EditProfile from "./src/screens/EditProfile";
+import MyListings from "./src/screens/MyListings";
 import AddListing from "./src/screens/AddListing";
 import AllListings from "./src/screens/AllListings";
 
@@ -30,6 +32,16 @@ export default function App() {
         <Stack.Screen
           name="Settings"
           component={Settings}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="EditProfile"
+          component={EditProfile}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="MyListings"
+          component={MyListings}
           options={{ headerShown: false }}
         />
         <Stack.Screen
