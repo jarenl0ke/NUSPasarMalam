@@ -110,6 +110,10 @@ const AddListing = ({ navigation }) => {
     setListingTitle(text);
   };
 
+  const handleConditionChange = (value) => {
+    setCondition(value);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -182,6 +186,41 @@ const AddListing = ({ navigation }) => {
             onChangeText={handleListingTitleChange}
             value={listingTitle}
           />
+        </View>
+        <View style={styles.conditionContainer}>
+          <Text style={styles.conditionHeader}>Condition:</Text>
+          <View style={styles.conditionButtons}>
+            <TouchableOpacity
+              style={[
+                styles.conditionOption,
+                condition === "New" && styles.conditionSelected,
+              ]}
+              onPress={() => handleConditionChange("New")}
+            >
+              <AntDesign
+                name={condition === "New" ? "checkcircle" : "checkcircleo"}
+                size={24}
+                color="#FFFFFF"
+                style={styles.conditionIcon}
+              />
+              <Text style={styles.conditionText}>New</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.conditionOption,
+                condition === "Used" && styles.conditionSelected,
+              ]}
+              onPress={() => handleConditionChange("Used")}
+            >
+              <AntDesign
+                name={condition === "Used" ? "checkcircle" : "checkcircleo"}
+                size={24}
+                color="#FFFFFF"
+                style={styles.conditionIcon}
+              />
+              <Text style={styles.conditionText}>Used</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -285,6 +324,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     marginBottom: 20,
+  },
+  conditionContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  conditionHeader: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginRight: 10,
+  },
+  conditionButtons: {
+    flexDirection: "row",
+  },
+  conditionOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#FFFFFF",
+  },
+  conditionSelected: {
+    backgroundColor: "#FF4500",
+  },
+  conditionIcon: {
+    marginRight: 5,
+  },
+  conditionText: {
+    color: "#FFFFFF",
+    fontSize: 16,
   },
 });
 
