@@ -59,6 +59,10 @@ const Listing = ({ navigation }) => {
     }
   };
 
+  const handleCloseFullscreen = () => {
+    setFullscreenImage(null);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
@@ -109,6 +113,20 @@ const Listing = ({ navigation }) => {
           )}
         </View>
       </ScrollView>
+      <Modal visible={!!fullscreenImage} transparent={true}>
+        <View style={styles.fullscreenContainer}>
+          <Image
+            source={{ uri: fullscreenImage }}
+            style={styles.fullscreenImage}
+          />
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={handleCloseFullscreen}
+          >
+            <Ionicons name="close" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -177,6 +195,24 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "bold",
     textAlign: "center",
+  },
+  fullscreenContainer: {
+    flex: 1,
+    backgroundColor: "#000000",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fullscreenImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    zIndex: 1,
+    padding: 10,
   },
 });
 
