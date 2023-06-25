@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -17,8 +17,16 @@ import "firebase/auth";
 import "firebase/firestore";
 
 const Listing = ({ navigation }) => {
+  const route = useRoute();
+  const { listing } = route.params;
+  const [fullscreenImage, setFullscreenImage] = useState(null);
+
   const handleGoBack = () => {
     navigation.goBack();
+  };
+
+  const handleImageClick = (imageUrl) => {
+    setFullscreenImage(imageUrl);
   };
 
   return (
@@ -26,6 +34,23 @@ const Listing = ({ navigation }) => {
       <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
         <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
       </TouchableOpacity>
+      <ScrollView>
+        <View style={styles.carouselContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {listing.imageUrls.map((imageUrl, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => handleImageClick(imageUrl)}
+              >
+                <Image
+                  source={{ uri: imageUrl }}
+                  style={styles.carouselImage}
+                />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -44,6 +69,18 @@ const styles = StyleSheet.create({
     left: 20,
     zIndex: 1,
     padding: 10,
+  },
+  carouselContainer: {
+    marginTop: 50,
+    marginBottom: 20,
+    height: 200,
+  },
+  carouselImage: {
+    width: 200,
+    height: 200,
+    resizeMode: "cover",
+    marginRight: 10,
+    borderRadius: 5,
   },
 });
 
