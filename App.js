@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Login from "./src/screens/Login";
 import Home from "./src/screens/Home";
+import AllListings from "./src/screens/AllListings";
 
 const Stack = createStackNavigator();
 
@@ -22,6 +23,11 @@ export default function App() {
         <Stack.Screen
           name="Home"
           component={Home}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AllListings"
+          component={AllListings}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

@@ -1,10 +1,102 @@
 import React from "react";
-import { StyleSheet, View, TextInput } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Text,
+} from "react-native";
 
-const Home = () => {
+const Home = ({ navigation }) => {
   // Dummy to handle search functionality
   const handleSearch = (text) => {
     console.log("Searching for:", text);
+  };
+
+  // Navigate to all listings Screen
+  const handleViewAll = () => {
+    navigation.navigate("AllListings");
+  };
+
+  const renderCarouselItems = (
+    header,
+    placeholderImage,
+    placeholderPrice,
+    placeholderPosted
+  ) => {
+    // Example data for carousel items
+    const items = [
+      {
+        id: 1,
+        image: placeholderImage,
+        price: placeholderPrice,
+        posted: placeholderPosted,
+      },
+      {
+        id: 2,
+        image: placeholderImage,
+        price: placeholderPrice,
+        posted: placeholderPosted,
+      },
+      {
+        id: 3,
+        image: placeholderImage,
+        price: placeholderPrice,
+        posted: placeholderPosted,
+      },
+      {
+        id: 4,
+        image: placeholderImage,
+        price: placeholderPrice,
+        posted: placeholderPosted,
+      },
+      {
+        id: 5,
+        image: placeholderImage,
+        price: placeholderPrice,
+        posted: placeholderPosted,
+      },
+      {
+        id: 6,
+        image: placeholderImage,
+        price: placeholderPrice,
+        posted: placeholderPosted,
+      },
+      {
+        id: 7,
+        image: placeholderImage,
+        price: placeholderPrice,
+        posted: placeholderPosted,
+      },
+      {
+        id: 8,
+        image: placeholderImage,
+        price: placeholderPrice,
+        posted: placeholderPosted,
+      },
+    ];
+
+    return (
+      <View style={styles.carouselContainer}>
+        <Text style={styles.carouselHeader}>{header}</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {items.map((item) => (
+            <TouchableOpacity key={item.id} style={styles.carouselItem}>
+              <Image source={item.image} style={styles.carouselItemImage} />
+              <Text style={styles.carouselItemPrice}>${item.price}</Text>
+              <Text style={styles.carouselItemPosted}>
+                Posted {item.posted} ago
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        <TouchableOpacity style={styles.viewAllButton} onPress={handleViewAll}>
+          <Text style={styles.viewAllButtonText}>View All</Text>
+        </TouchableOpacity>
+      </View>
+    );
   };
 
   return (
@@ -17,6 +109,19 @@ const Home = () => {
           onChangeText={handleSearch}
         />
       </View>
+      {renderCarouselItems(
+        "Hot Listings:",
+        require("../../assets/Images/aircon.jpeg"),
+        "10",
+        "2 days"
+      )}
+      <View style={styles.gap} />
+      {renderCarouselItems(
+        "Hot Requests:",
+        require("../../assets/Images/lipstick.jpeg"),
+        "20",
+        "1 day"
+      )}
     </View>
   );
 };
@@ -42,6 +147,49 @@ const styles = StyleSheet.create({
     padding: 10,
     color: "#FFFFFF",
     fontSize: 16,
+  },
+  carouselContainer: {
+    marginBottom: 20,
+  },
+  carouselHeader: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginBottom: 10,
+  },
+  carouselItem: {
+    backgroundColor: "#CCCCCC",
+    padding: 10,
+    marginRight: 10,
+    borderRadius: 10,
+  },
+  carouselItemImage: {
+    width: 150,
+    height: 150,
+    marginBottom: 10,
+  },
+  carouselItemPrice: {
+    color: "#000000",
+    fontSize: 16,
+  },
+  carouselItemPosted: {
+    color: "#000000",
+    fontSize: 14,
+  },
+  viewAllButton: {
+    backgroundColor: "#007bff",
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  viewAllButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  gap: {
+    height: 20,
   },
 });
 
