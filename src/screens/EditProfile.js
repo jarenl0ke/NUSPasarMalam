@@ -17,6 +17,54 @@ const EditProfile = ({ navigation }) => {
   const [fullName, setFullName] = useState("");
   const [age, setAge] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+  const handleUpdateProfile = () => {
+    const user = firebase.auth().currentUser;
+
+    if (user) {
+      const db = firebase.firestore();
+      const usersCollection = db.collection("users");
+
+      // Update email first
+      user
+        .updateEmail(email)
+        .then(() => {
+          // Update other profile fields in Firestore
+          usersCollection
+            .doc(user.uid)
+            .update({
+              fullName: fullName,
+              age: age,
+              phoneNumber: phoneNumber,
+              email: email,
+            })
+            .then(() => {
+              console.log("Profile updated successfully");
+              Alert.alert(
+                "Profile Updated",
+                "Your profile has been updated successfully."
+              );
+              navigation.goBack();
+            })
+            .catch((error) => {
+              console.error("Error updating profile: ", error);
+            });
+        })
+        .catch((error) => {
+          console.error("Error updating email: ", error);
+          if (error.code === "auth/invalid-email") {
+            Alert.alert("Invalid Email", "Please enter a valid email address.");
+          } else {
+            Alert.alert(
+              "Error",
+              "An error occurred while updating your email. Please try again later."
+            );
+          }
+        });
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -59,6 +107,25 @@ const EditProfile = ({ navigation }) => {
           onChangeText={setEmail}
         />
       </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Phone Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Phone Number"
+          placeholderTextColor="#666666"
+          value={phoneNumber}
+          onChangeText={setPhoneNumber}
+          keyboardType="numeric"
+          maxLength={8}
+        />
+      </View>
+      <TouchableOpacity
+        style={[styles.updateButton, isButtonDisabled && styles.disabledButton]}
+        onPress={handleUpdateProfile}
+        disabled={isButtonDisabled}
+      >
+        <Text style={styles.buttonText}>Update Profile</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -97,6 +164,21 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     color: "#FFFFFF",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  updateButton: {
+    backgroundColor: "#1E90FF",
+    borderRadius: 5,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    alignItems: "center",
   },
 });
 
