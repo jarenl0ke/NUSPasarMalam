@@ -33,6 +33,10 @@ const Register = ({ navigation }) => {
     navigation.goBack();
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
@@ -108,6 +112,19 @@ const Register = ({ navigation }) => {
               onChangeText={setConfirmPassword}
             />
           </View>
+          <View style={styles.checkboxContainer}>
+            <TouchableOpacity
+              style={styles.checkbox}
+              onPress={togglePasswordVisibility}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off" : "eye"}
+                size={24}
+                color="#FFFFFF"
+              />
+            </TouchableOpacity>
+            <Text style={styles.checkboxLabel}>Show Password</Text>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -156,6 +173,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#FFFFFF",
     backgroundColor: "#111111",
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    paddingHorizontal: 30,
+  },
+  checkbox: {
+    marginRight: 10,
+  },
+  checkboxLabel: {
+    fontSize: 16,
+    color: "#FFFFFF",
   },
 });
 
