@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -19,6 +19,41 @@ const EditProfile = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+  // Retrieve user information from Firebase
+  useEffect(() => {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      const db = firebase.firestore();
+      const usersCollection = db.collection("users");
+      usersCollection
+        .doc(user.uid)
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            const userData = doc.data();
+            setFullName(userData.fullName);
+            setAge(userData.age);
+            setEmail(userData.email);
+            setPhoneNumber(userData.phoneNumber);
+          } else {
+            console.log("User document not found");
+          }
+        })
+        .catch((error) => {
+          console.error("Error retrieving user information: ", error);
+        });
+    }
+  }, []);
+
+  // Enable/disable update button based on field completion
+  useEffect(() => {
+    if (fullName && age && phoneNumber && email) {
+      setIsButtonDisabled(false);
+    } else {
+      setIsButtonDisabled(true);
+    }
+  }, [fullName, age, phoneNumber, email]);
 
   const handleUpdateProfile = () => {
     const user = firebase.auth().currentUser;
