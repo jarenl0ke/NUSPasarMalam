@@ -1,15 +1,15 @@
 import React from "react";
 import {
   StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
   View,
   Text,
   ScrollView,
   Image,
   TouchableOpacity,
   TextInput,
-  KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  Keyboard,
   Alert,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
@@ -41,8 +41,34 @@ const categories = [
   "Food & Beverages",
 ];
 
-const AddListing = () => {
-  return;
+// To navigate to previous screen
+const handleGoBack = () => {
+  navigation.goBack();
 };
+
+const AddListing = ({ navigation }) => {
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <KeyboardAvoidingView style={styles.container} behavior="padding">
+        <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
+          <AntDesign name="arrowleft" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#000000",
+  },
+  goBackButton: {
+    position: "absolute",
+    top: 50,
+    left: 10,
+    zIndex: 1,
+  },
+});
 
 export default AddListing;
