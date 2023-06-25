@@ -71,6 +71,32 @@ const AllListings = ({ navigation }) => {
           <Text style={styles.sortButtonText}>Sort</Text>
         </TouchableOpacity>
       </View>
+      <Modal
+        visible={isModalVisible}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={toggleModal}
+      >
+        <TouchableWithoutFeedback onPress={toggleModal}>
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Select Category</Text>
+              <FlatList
+                data={categories}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.categoryOption}
+                    onPress={() => handleCategorySelect(item)}
+                  >
+                    <Text style={styles.categoryOptionText}>{item}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) => item}
+              />
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
@@ -137,6 +163,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     textAlign: "center",
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "#1E1E1E",
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    padding: 20,
+    maxHeight: 300,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginBottom: 10,
+  },
+  categoryOption: {
+    paddingVertical: 10,
+  },
+  categoryOptionText: {
+    fontSize: 16,
+    color: "#FFFFFF",
   },
 });
 
