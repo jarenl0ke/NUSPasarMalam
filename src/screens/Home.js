@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Text,
+  SafeAreaView,
 } from "react-native";
 
 const Home = ({ navigation }) => {
@@ -98,6 +99,47 @@ const Home = ({ navigation }) => {
       </View>
     );
   };
+  const renderBottomBar = () => {
+    const handleAddListing = () => {
+      navigation.navigate("AddListing");
+    };
+
+    const handleSettings = () => {
+      navigation.navigate("Settings");
+    };
+
+    return (
+      <SafeAreaView style={styles.bottomBar}>
+        <TouchableOpacity
+          style={styles.bottomBarItem}
+          onPress={handleAddListing}
+        >
+          <Image
+            source={require("../../assets/Images/buy.png")}
+            style={styles.bottomBarIcon}
+          />
+          <Text style={styles.bottomBarText}>Create Listing</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.bottomBarItem}
+          onPress={handleAddListing}
+        >
+          <Image
+            source={require("../../assets/Images/sell.png")}
+            style={styles.bottomBarIcon}
+          />
+          <Text style={styles.bottomBarText}>Create Request</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomBarItem} onPress={handleSettings}>
+          <Image
+            source={require("../../assets/Images/settings.png")}
+            style={styles.bottomBarIcon}
+          />
+          <Text style={styles.bottomBarText}>Settings</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -122,6 +164,7 @@ const Home = ({ navigation }) => {
         "20",
         "1 day"
       )}
+      {renderBottomBar()}
     </View>
   );
 };
@@ -190,6 +233,28 @@ const styles = StyleSheet.create({
   },
   gap: {
     height: 20,
+  },
+  bottomBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#1E1E1E",
+    paddingVertical: 10,
+    width: "100%",
+  },
+  bottomBarItem: {
+    flex: 1,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  bottomBarIcon: {
+    width: 20,
+    height: 20,
+  },
+  bottomBarText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    marginTop: 5,
   },
 });
 
