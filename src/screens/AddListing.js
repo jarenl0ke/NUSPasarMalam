@@ -106,6 +106,10 @@ const AddListing = ({ navigation }) => {
     </View>
   );
 
+  const handleListingTitleChange = (text) => {
+    setListingTitle(text);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -171,6 +175,13 @@ const AddListing = ({ navigation }) => {
               )}
             </View>
           </ModalDropdown>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Listing Title"
+            placeholderTextColor="#A9A9A9"
+            onChangeText={handleListingTitleChange}
+            value={listingTitle}
+          />
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -266,6 +277,14 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     color: "#FFFFFF",
+  },
+  textInput: {
+    backgroundColor: "#1E1E1E",
+    color: "#FFFFFF",
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginBottom: 20,
   },
 });
 
