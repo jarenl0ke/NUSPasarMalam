@@ -16,6 +16,7 @@ const EditProfile = ({ navigation }) => {
   // Initialise States
   const [fullName, setFullName] = useState("");
   const [age, setAge] = useState("");
+  const [email, setEmail] = useState("");
 
   return (
     <View style={styles.container}>
@@ -46,6 +47,16 @@ const EditProfile = ({ navigation }) => {
           onChangeText={setAge}
           keyboardType="numeric"
           maxLength={2}
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#666666"
+          value={email}
+          onChangeText={setEmail}
         />
       </View>
     </View>
