@@ -9,6 +9,9 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
+import firebase from "../../database/Firebase";
+import "firebase/auth";
+import "firebase/firestore";
 
 const Login = ({ navigation }) => {
   const dismissKeyboard = () => {
@@ -22,13 +25,35 @@ const Login = ({ navigation }) => {
     navigation.navigate("Home");
   };
 
+  const navigateToRegister = () => {
+    navigation.navigate("Register");
+  };
+
   const handleLogin = () => {
     if (email.trim() === "" || password.trim() === "") {
       alert("Please enter your email and password");
       return;
-    } else {
-      navigateToHomepage();
     }
+
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(() => {
+        // Login successful
+        navigateToHomepage();
+      })
+      .catch((error) => {
+        // Handle login error
+        if (error.code === "auth/user-not-found") {
+          alert("Email not found. Please try again.");
+        } else if (error.code === "auth/wrong-password") {
+          alert("Wrong password. Please try again.");
+        } else if (error.code === "auth/invalid-email") {
+          alert("Invalid email format. Please enter a valid email address.");
+        } else {
+          alert("Login failed. Please try again later.");
+        }
+      });
   };
 
   return (
