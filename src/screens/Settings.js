@@ -7,6 +7,8 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import firebase from "../../database/Firebase";
+import "firebase/auth";
 
 const Settings = ({ navigation }) => {
   // To Navigate to previous screen
@@ -26,7 +28,31 @@ const Settings = ({ navigation }) => {
 
   // Dummy to Navigate to Login
   const handleSignOut = () => {
-    navigation.navigate("Login");
+    Alert.alert(
+      "Sign Out",
+      "Do you wish to sign out?",
+      [
+        {
+          text: "No",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: () => {
+            firebase
+              .auth()
+              .signOut()
+              .then(() => {
+                navigation.navigate("Login"); // Navigate to Login screen after sign out
+              })
+              .catch((error) => {
+                console.error("Error signing out: ", error);
+              });
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   return (
