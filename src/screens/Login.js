@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-const Login = () => {
+const Login = ({ navigation }) => {
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
@@ -18,10 +18,16 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const navigateToHomepage = () => {
+    navigation.navigate("Home");
+  };
+
   const handleLogin = () => {
     if (email.trim() === "" || password.trim() === "") {
       alert("Please enter your email and password");
       return;
+    } else {
+      navigateToHomepage();
     }
   };
 
@@ -33,7 +39,7 @@ const Login = () => {
       >
         <Text style={styles.header}>NUS Pasar Malam</Text>
         <Image
-          source={require("../../assets/marketplace.png")}
+          source={require("../../assets/Images/marketplace.png")}
           style={styles.logo}
         />
         <TextInput
