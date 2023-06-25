@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   TouchableWithoutFeedback,
@@ -52,6 +52,34 @@ const AddListing = ({ navigation }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [userId, setUserId] = useState("");
   const [listingDateTime, setListingDateTime] = useState("");
+
+  useEffect(() => {
+    validateForm();
+    fetchUserId();
+  }, [selectedImages, category, listingTitle, condition, price, description]);
+
+  const validateForm = () => {
+    const isValid =
+      selectedImages.length > 0 &&
+      category.trim() !== "" &&
+      listingTitle.trim() !== "" &&
+      condition != null &&
+      price.trim() !== "" &&
+      description.trim() !== "";
+    setIsButtonDisabled(!isValid);
+  };
+
+  const fetchUserId = async () => {
+    try {
+      // Get the currently authenticated user
+      const user = firebase.auth().currentUser;
+      if (user) {
+        setUserId(user.uid); // Set the user ID in the state
+      }
+    } catch (error) {
+      console.error("Error fetching user ID:", error);
+    }
+  };
 
   // To navigate to previous screen
   const handleGoBack = () => {
