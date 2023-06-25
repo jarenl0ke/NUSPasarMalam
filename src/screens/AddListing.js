@@ -53,6 +53,7 @@ const AddListing = ({ navigation }) => {
         <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
           <AntDesign name="arrowleft" size={24} color="#FFFFFF" />
         </TouchableOpacity>
+        <Text style={styles.pageHeader}>Add Listing</Text>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -68,6 +69,14 @@ const styles = StyleSheet.create({
     top: 50,
     left: 10,
     zIndex: 1,
+  },
+  pageHeader: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginTop: 50,
+    marginBottom: 30,
+    textAlign: "center",
   },
 });
 
