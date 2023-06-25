@@ -24,6 +24,7 @@ const MyListings = ({ navigation }) => {
       <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
         <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
       </TouchableOpacity>
+      <Text style={styles.header}>My Listings</Text>
     </SafeAreaView>
   );
 };
