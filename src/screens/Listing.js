@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,10 @@ const Listing = ({ navigation }) => {
   const [fullscreenImage, setFullscreenImage] = useState(null);
   const [listingTime, setListingTime] = useState(null);
   const currentUserID = firebase.auth().currentUser.uid;
+
+  useEffect(() => {
+    calculateListingTime();
+  }, []);
 
   const handleGoBack = () => {
     navigation.goBack();
@@ -61,6 +65,24 @@ const Listing = ({ navigation }) => {
 
   const handleCloseFullscreen = () => {
     setFullscreenImage(null);
+  };
+
+  const calculateListingTime = () => {
+    const currentTime = new Date();
+    const listingDateTime = new Date(listing.listingDateTime);
+    const timeDiff = currentTime - listingDateTime;
+
+    const minutes = Math.floor(timeDiff / 1000 / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) {
+      setListingTime(`Item listed ${days} ${days === 1 ? "day" : "days"} ago`);
+    } else {
+      setListingTime(
+        `Item listed ${hours} ${hours === 1 ? "hour" : "hours"} ago`
+      );
+    }
   };
 
   return (
