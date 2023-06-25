@@ -114,6 +114,14 @@ const AddListing = ({ navigation }) => {
     setCondition(value);
   };
 
+  const handlePriceChange = (text) => {
+    setPrice(text);
+  };
+
+  const handleDescriptionChange = (text) => {
+    setDescription(text);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -222,6 +230,26 @@ const AddListing = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Price"
+          placeholderTextColor="#A9A9A9"
+          onChangeText={(text) => {
+            const formattedText = text.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+            handlePriceChange(formattedText);
+          }}
+          value={price ? `$${price}` : ""}
+          keyboardType="numeric"
+        />
+        <TextInput
+          style={[styles.descriptionInput, { height: 120 }]}
+          placeholder="Description"
+          placeholderTextColor="#A9A9A9"
+          onChangeText={handleDescriptionChange}
+          value={description}
+          multiline
+          numberOfLines={6} // Increase the number of lines to make the description input box taller
+        />
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -357,6 +385,15 @@ const styles = StyleSheet.create({
   conditionText: {
     color: "#FFFFFF",
     fontSize: 16,
+  },
+  descriptionInput: {
+    backgroundColor: "#1E1E1E",
+    color: "#FFFFFF",
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginBottom: 20,
+    textAlignVertical: "top",
   },
 });
 
