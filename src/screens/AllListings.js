@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -36,12 +36,46 @@ const categories = [
   "Food & Beverages",
 ];
 
+const sortOptions = [
+  { key: "priceLowToHigh", label: "Price: Low to High" },
+  { key: "priceHighToLow", label: "Price: High to Low" },
+  { key: "dateOldToNew", label: "Date Posted: Old to New" },
+  { key: "dateNewToOld", label: "Date Posted: New to Old" },
+];
+
 const AllListings = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [isModalVisible, setModalVisible] = useState(false);
   const [isSortModalVisible, setSortModalVisible] = useState(false);
   const [listings, setListings] = useState([]);
   const currentUserID = firebase.auth().currentUser.uid;
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        let listingsRef = firebase.firestore().collection("Listings");
+
+        if (selectedCategory !== "All Categories") {
+          listingsRef = listingsRef.where("category", "==", selectedCategory);
+        }
+
+        const listingsSnapshot = await listingsRef.get();
+
+        const listingsData = listingsSnapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter((listing) => listing.userID !== currentUserID);
+
+        setListings(listingsData);
+      } catch (error) {
+        console.error("Error fetching listings:", error);
+      }
+    };
+
+    fetchListings();
+  }, [selectedCategory]);
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
