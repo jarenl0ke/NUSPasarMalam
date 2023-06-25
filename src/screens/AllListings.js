@@ -40,6 +40,8 @@ const AllListings = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [isModalVisible, setModalVisible] = useState(false);
   const [isSortModalVisible, setSortModalVisible] = useState(false);
+  const [listings, setListings] = useState([]);
+  const currentUserID = firebase.auth().currentUser.uid;
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -47,6 +49,31 @@ const AllListings = ({ navigation }) => {
 
   const toggleSortModal = () => {
     setSortModalVisible(!isSortModalVisible);
+  };
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    toggleModal();
+  };
+
+  const renderListingItem = ({ item, index }) => {
+    return (
+      <TouchableOpacity
+        style={styles.listingItemContainer}
+        onPress={() => handleListingPress(item)}
+      >
+        <Image
+          source={{ uri: item.imageUrls[0] }}
+          style={styles.listingItemImage}
+        />
+        <Text style={styles.listingItemTitle}>{item.listingTitle}</Text>
+        <Text style={styles.listingItemPrice}>Price: ${item.price}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const handleListingPress = (listing) => {
+    navigation.navigate("Listing", { listing });
   };
 
   return (
@@ -97,6 +124,29 @@ const AllListings = ({ navigation }) => {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+
+      {/* Add the sort modal content */}
+      <Modal
+        visible={isSortModalVisible}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={toggleSortModal}
+      >
+        <TouchableWithoutFeedback onPress={toggleSortModal}>
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Sort By</Text>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+      <FlatList
+        data={listings}
+        numColumns={2}
+        renderItem={renderListingItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listingsContainer}
+      />
     </View>
   );
 };
@@ -188,6 +238,36 @@ const styles = StyleSheet.create({
   categoryOptionText: {
     fontSize: 16,
     color: "#FFFFFF",
+  },
+  listingsContainer: {
+    paddingBottom: 20,
+  },
+  listingItemContainer: {
+    flex: 1,
+    backgroundColor: "#1E1E1E",
+    margin: 10,
+    borderRadius: 10,
+    padding: 10,
+    alignItems: "center",
+  },
+  listingItemImage: {
+    width: "100%",
+    height: 150,
+    resizeMode: "cover",
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  listingItemTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    textAlign: "center",
+    marginBottom: 5,
+  },
+  listingItemPrice: {
+    fontSize: 14,
+    color: "#FFFFFF",
+    textAlign: "center",
   },
 });
 
