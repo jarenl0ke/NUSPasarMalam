@@ -21,6 +21,9 @@ const Register = ({ navigation }) => {
   const [age, setAge] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -81,6 +84,28 @@ const Register = ({ navigation }) => {
               placeholderTextColor="#777"
               value={email}
               onChangeText={setEmail}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter password"
+              secureTextEntry={!showPassword}
+              placeholderTextColor="#777"
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Confirm Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Retype your password"
+              secureTextEntry={!showPassword}
+              placeholderTextColor="#777"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
             />
           </View>
         </ScrollView>
