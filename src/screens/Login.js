@@ -86,7 +86,10 @@ const Login = ({ navigation }) => {
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.signupButton} onPress={handleLogin}>
+        <TouchableOpacity
+          style={styles.signupButton}
+          onPress={navigateToRegister}
+        >
           <Text style={styles.signupButtonText}>Create a new account</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
