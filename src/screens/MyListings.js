@@ -14,7 +14,7 @@ import firebase from "../../database/Firebase";
 import "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 
-const MyListings = () => {
+const MyListings = ({ navigation }) => {
   const handleGoBack = () => {
     navigation.goBack();
   };
