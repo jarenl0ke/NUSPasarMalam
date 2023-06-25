@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,9 @@ import "firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
 
 const Register = ({ navigation }) => {
+  // States
+  const [fullName, setFullName] = useState("");
+
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
@@ -32,6 +35,16 @@ const Register = ({ navigation }) => {
             <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.header}>Register</Text>
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Full Name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter full name"
+              placeholderTextColor="#777"
+              value={fullName}
+              onChangeText={setFullName}
+            />
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
