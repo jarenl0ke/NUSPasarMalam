@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import "firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
 
 const EditProfile = ({ navigation }) => {
+  const [fullName, setFullName] = useState("");
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -22,6 +24,16 @@ const EditProfile = ({ navigation }) => {
         <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
       </TouchableOpacity>
       <Text style={styles.header}>Edit Profile</Text>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Full Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Full Name"
+          placeholderTextColor="#666666"
+          value={fullName}
+          onChangeText={setFullName}
+        />
+      </View>
     </View>
   );
 };
@@ -45,6 +57,20 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 40,
     textAlign: "center",
+    color: "#FFFFFF",
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    color: "#FFFFFF",
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: "#333333",
+    borderRadius: 5,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     color: "#FFFFFF",
   },
 });
