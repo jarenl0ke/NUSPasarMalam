@@ -90,6 +90,22 @@ const AddListing = ({ navigation }) => {
     }
   };
 
+  const handleCategorySelect = (index, category) => {
+    setCategory(category);
+  };
+
+  const renderCategoryRow = (option, index, isSelected) => (
+    <View
+      style={
+        isSelected
+          ? styles.categoryDropdownItemSelected
+          : styles.categoryDropdownItem
+      }
+    >
+      <Text style={styles.categoryDropdownItemText}>{option}</Text>
+    </View>
+  );
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -138,6 +154,23 @@ const AddListing = ({ navigation }) => {
               </TouchableOpacity>
             )}
           </ScrollView>
+        </View>
+        <View style={styles.formContainer}>
+          <ModalDropdown
+            style={styles.categoryDropdown}
+            dropdownStyle={styles.categoryDropdownList}
+            options={categories}
+            onSelect={handleCategorySelect}
+            renderRow={renderCategoryRow}
+          >
+            <View>
+              {category ? (
+                <Text style={styles.categoryText}>{category}</Text>
+              ) : (
+                <Text style={styles.placeholderText}>Select Category</Text>
+              )}
+            </View>
+          </ModalDropdown>
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -211,6 +244,28 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "bold",
     textAlign: "center",
+  },
+  formContainer: {
+    marginHorizontal: 20,
+    marginBottom: 30,
+  },
+  categoryDropdown: {
+    backgroundColor: "#1E1E1E",
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginBottom: 20,
+  },
+  categoryDropdownList: {
+    backgroundColor: "#1E1E1E",
+    borderRadius: 10,
+    padding: 5,
+  },
+  categoryText: {
+    color: "#FFFFFF",
+  },
+  placeholderText: {
+    color: "#FFFFFF",
   },
 });
 
