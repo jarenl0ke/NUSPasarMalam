@@ -66,6 +66,54 @@ const EditProfile = ({ navigation }) => {
     }
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            const user = firebase.auth().currentUser;
+            if (user) {
+              const db = firebase.firestore();
+              const usersCollection = db.collection("users");
+
+              // Delete user document from Firestore
+              usersCollection
+                .doc(user.uid)
+                .delete()
+                .then(() => {
+                  // Delete user account
+                  user
+                    .delete()
+                    .then(() => {
+                      console.log("Account deleted successfully");
+                      Alert.alert(
+                        "Account Deleted",
+                        "Your account has been deleted successfully."
+                      );
+                      navigation.navigate("Login");
+                    })
+                    .catch((error) => {
+                      console.error("Error deleting account: ", error);
+                    });
+                })
+                .catch((error) => {
+                  console.error("Error deleting user document: ", error);
+                });
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -126,6 +174,17 @@ const EditProfile = ({ navigation }) => {
       >
         <Text style={styles.buttonText}>Update Profile</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={handleDeleteAccount}
+      >
+        <Text style={styles.buttonText}>Delete Account</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.backgroundTouchable}
+        onPress={Keyboard.dismiss}
+        activeOpacity={1}
+      />
     </View>
   );
 };
@@ -179,6 +238,17 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
     alignItems: "center",
+  },
+  deleteButton: {
+    backgroundColor: "#FF0000",
+    borderRadius: 5,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  backgroundTouchable: {
+    flex: 1,
   },
 });
 
