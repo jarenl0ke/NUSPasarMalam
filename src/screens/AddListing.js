@@ -122,134 +122,214 @@ const AddListing = ({ navigation }) => {
     setDescription(text);
   };
 
+  const handleListIt = async () => {
+    try {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        const userId = user.uid;
+
+        const listingData = {
+          category,
+          listingTitle,
+          condition,
+          price,
+          description,
+          userID: userId,
+          listingDateTime: new Date().toISOString(),
+        };
+
+        const listingRef = await firebase
+          .firestore()
+          .collection("Listings")
+          .add(listingData);
+        const listingId = listingRef.id;
+
+        const storage = getStorage();
+
+        const uploadImagePromises = selectedImages.map(async (image, index) => {
+          const response = await fetch(image.uri);
+          const blob = await response.blob();
+
+          const storageRef = ref(
+            storage,
+            `listings/${listingId}/image_${index}`
+          );
+
+          await uploadBytes(storageRef, blob);
+          const downloadUrl = await getDownloadURL(storageRef);
+
+          console.log(`Image ${index + 1} uploaded successfully.`); // Log successful upload
+
+          return downloadUrl;
+        });
+
+        const imageUrls = await Promise.all(uploadImagePromises);
+
+        console.log("Image URLs:", imageUrls); // Verify the imageUrls array contains valid URLs
+
+        await listingRef.update({ imageUrls });
+
+        setSelectedImages([]);
+        setCategory("");
+        setListingTitle("");
+        setCondition(null);
+        setPrice("");
+        setDescription("");
+
+        Alert.alert("Item listed successfully!");
+        navigation.navigate("Home");
+      } else {
+        Alert.alert("User not found. Please log in again.");
+        // Handle the case when the user is not logged in
+      }
+    } catch (error) {
+      console.error("Error listing item:", error);
+      // Handle the error appropriately
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
-        <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
-          <AntDesign name="arrowleft" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.pageHeader}>Add Listing</Text>
-        <View style={styles.carouselContainer}>
-          <ScrollView
-            horizontal
-            contentContainerStyle={styles.carouselScrollView}
-            showsHorizontalScrollIndicator={false}
-          >
-            {selectedImages.map((image, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.imageContainer}
-                onPress={() => handleRemoveImage(index)}
-              >
-                <Image
-                  source={{ uri: image.uri }}
-                  style={styles.imagePreview}
-                />
-                <View style={styles.removeImageButton}>
-                  <AntDesign
-                    name="close"
-                    size={16}
-                    color="#FFFFFF"
-                    style={styles.removeImageIcon}
+        <ScrollView>
+          <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
+            <AntDesign name="arrowleft" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.pageHeader}>Add Listing</Text>
+          <View style={styles.carouselContainer}>
+            <ScrollView
+              horizontal
+              contentContainerStyle={styles.carouselScrollView}
+              showsHorizontalScrollIndicator={false}
+            >
+              {selectedImages.map((image, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.imageContainer}
+                  onPress={() => handleRemoveImage(index)}
+                >
+                  <Image
+                    source={{ uri: image.uri }}
+                    style={styles.imagePreview}
                   />
-                </View>
-              </TouchableOpacity>
-            ))}
-            {selectedImages.length < 7 && (
-              <TouchableOpacity
-                style={styles.addMorePhotosButton}
-                onPress={handleImagePicker}
-              >
-                <AntDesign
-                  name="plus"
-                  size={24}
-                  color="#FFFFFF"
-                  style={styles.addMorePhotosIcon}
-                />
-                <Text style={styles.addMorePhotosText}>Add More Photos</Text>
-              </TouchableOpacity>
-            )}
-          </ScrollView>
-        </View>
-        <View style={styles.formContainer}>
-          <ModalDropdown
-            style={styles.categoryDropdown}
-            dropdownStyle={styles.categoryDropdownList}
-            options={categories}
-            onSelect={handleCategorySelect}
-            renderRow={renderCategoryRow}
-          >
-            <View>
-              {category ? (
-                <Text style={styles.categoryText}>{category}</Text>
-              ) : (
-                <Text style={styles.placeholderText}>Select Category</Text>
+                  <View style={styles.removeImageButton}>
+                    <AntDesign
+                      name="close"
+                      size={16}
+                      color="#FFFFFF"
+                      style={styles.removeImageIcon}
+                    />
+                  </View>
+                </TouchableOpacity>
+              ))}
+              {selectedImages.length < 7 && (
+                <TouchableOpacity
+                  style={styles.addMorePhotosButton}
+                  onPress={handleImagePicker}
+                >
+                  <AntDesign
+                    name="plus"
+                    size={24}
+                    color="#FFFFFF"
+                    style={styles.addMorePhotosIcon}
+                  />
+                  <Text style={styles.addMorePhotosText}>Add More Photos</Text>
+                </TouchableOpacity>
               )}
+            </ScrollView>
+          </View>
+          <View style={styles.formContainer}>
+            <ModalDropdown
+              style={styles.categoryDropdown}
+              dropdownStyle={styles.categoryDropdownList}
+              options={categories}
+              onSelect={handleCategorySelect}
+              renderRow={renderCategoryRow}
+            >
+              <View style={styles.dropdownContainer}>
+                {category ? (
+                  <Text style={styles.categoryText}>{category}</Text>
+                ) : (
+                  <Text style={styles.placeholderText}>Select Category</Text>
+                )}
+              </View>
+            </ModalDropdown>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Listing Title"
+              placeholderTextColor="#A9A9A9"
+              onChangeText={handleListingTitleChange}
+              value={listingTitle}
+            />
+
+            <View style={styles.conditionContainer}>
+              <Text style={styles.conditionHeader}>Condition:</Text>
+              <View style={styles.conditionButtons}>
+                <TouchableOpacity
+                  style={[
+                    styles.conditionOption,
+                    condition === "New" && styles.conditionSelected,
+                  ]}
+                  onPress={() => handleConditionChange("New")}
+                >
+                  <AntDesign
+                    name={condition === "New" ? "checkcircle" : "checkcircleo"}
+                    size={24}
+                    color="#FFFFFF"
+                    style={styles.conditionIcon}
+                  />
+                  <Text style={styles.conditionText}>New</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.conditionOption,
+                    condition === "Used" && styles.conditionSelected,
+                  ]}
+                  onPress={() => handleConditionChange("Used")}
+                >
+                  <AntDesign
+                    name={condition === "Used" ? "checkcircle" : "checkcircleo"}
+                    size={24}
+                    color="#FFFFFF"
+                    style={styles.conditionIcon}
+                  />
+                  <Text style={styles.conditionText}>Used</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </ModalDropdown>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Listing Title"
-            placeholderTextColor="#A9A9A9"
-            onChangeText={handleListingTitleChange}
-            value={listingTitle}
-          />
-        </View>
-        <View style={styles.conditionContainer}>
-          <Text style={styles.conditionHeader}>Condition:</Text>
-          <View style={styles.conditionButtons}>
+
+            <TextInput
+              style={styles.textInput}
+              placeholder="Price"
+              placeholderTextColor="#A9A9A9"
+              onChangeText={(text) => {
+                const formattedText = text.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                handlePriceChange(formattedText);
+              }}
+              value={price ? `$${price}` : ""}
+              keyboardType="numeric"
+            />
+            <TextInput
+              style={[styles.descriptionInput, { height: 120 }]}
+              placeholder="Description"
+              placeholderTextColor="#A9A9A9"
+              onChangeText={handleDescriptionChange}
+              value={description}
+              multiline
+              numberOfLines={6} // Increase the number of lines to make the description input box taller
+            />
             <TouchableOpacity
               style={[
-                styles.conditionOption,
-                condition === "New" && styles.conditionSelected,
+                styles.listItButton,
+                isButtonDisabled && styles.disabledButton,
               ]}
-              onPress={() => handleConditionChange("New")}
+              onPress={handleListIt}
+              disabled={isButtonDisabled}
             >
-              <AntDesign
-                name={condition === "New" ? "checkcircle" : "checkcircleo"}
-                size={24}
-                color="#FFFFFF"
-                style={styles.conditionIcon}
-              />
-              <Text style={styles.conditionText}>New</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.conditionOption,
-                condition === "Used" && styles.conditionSelected,
-              ]}
-              onPress={() => handleConditionChange("Used")}
-            >
-              <AntDesign
-                name={condition === "Used" ? "checkcircle" : "checkcircleo"}
-                size={24}
-                color="#FFFFFF"
-                style={styles.conditionIcon}
-              />
-              <Text style={styles.conditionText}>Used</Text>
+              <Text style={styles.listItButtonText}>List It</Text>
             </TouchableOpacity>
           </View>
-        </View>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Price"
-          placeholderTextColor="#A9A9A9"
-          onChangeText={(text) => {
-            const formattedText = text.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-            handlePriceChange(formattedText);
-          }}
-          value={price ? `$${price}` : ""}
-          keyboardType="numeric"
-        />
-        <TextInput
-          style={[styles.descriptionInput, { height: 120 }]}
-          placeholder="Description"
-          placeholderTextColor="#A9A9A9"
-          onChangeText={handleDescriptionChange}
-          value={description}
-          multiline
-          numberOfLines={6} // Increase the number of lines to make the description input box taller
-        />
+        </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -339,19 +419,21 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 5,
   },
+  categoryDropdownItem: {
+    padding: 10,
+  },
+  categoryDropdownItemSelected: {
+    backgroundColor: "#3D3D3D",
+    padding: 10,
+  },
+  categoryDropdownItemText: {
+    color: "#FFFFFF",
+  },
   categoryText: {
     color: "#FFFFFF",
   },
   placeholderText: {
     color: "#FFFFFF",
-  },
-  textInput: {
-    backgroundColor: "#1E1E1E",
-    color: "#FFFFFF",
-    borderRadius: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    marginBottom: 20,
   },
   conditionContainer: {
     flexDirection: "row",
@@ -386,6 +468,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
   },
+  textInput: {
+    backgroundColor: "#1E1E1E",
+    color: "#FFFFFF",
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginBottom: 20,
+  },
   descriptionInput: {
     backgroundColor: "#1E1E1E",
     color: "#FFFFFF",
@@ -394,6 +484,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginBottom: 20,
     textAlignVertical: "top",
+  },
+  listItButton: {
+    backgroundColor: "#FF4500",
+    borderRadius: 10,
+    paddingVertical: 15,
+    alignItems: "center",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  listItButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
