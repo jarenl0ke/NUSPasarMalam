@@ -18,6 +18,9 @@ import { Ionicons } from "@expo/vector-icons";
 const Register = ({ navigation }) => {
   // States
   const [fullName, setFullName] = useState("");
+  const [age, setAge] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -43,6 +46,41 @@ const Register = ({ navigation }) => {
               placeholderTextColor="#777"
               value={fullName}
               onChangeText={setFullName}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Age</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter age"
+              keyboardType="numeric"
+              placeholderTextColor="#777"
+              value={age}
+              onChangeText={setAge}
+              maxLength={2}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Phone Number</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter phone number"
+              keyboardType="numeric"
+              placeholderTextColor="#777"
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
+              maxLength={8}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter email"
+              autoCapitalize="none"
+              placeholderTextColor="#777"
+              value={email}
+              onChangeText={setEmail}
             />
           </View>
         </ScrollView>
