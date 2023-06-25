@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -31,6 +31,22 @@ const Register = ({ navigation }) => {
     hasSpecial: false,
   });
 
+  // Check password requirements on each password change
+  useEffect(() => {
+    checkPasswordRequirements();
+  }, [password]);
+
+  const checkPasswordRequirements = () => {
+    const requirements = {
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    };
+
+    setPasswordRequirements(requirements);
+  };
+
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
@@ -41,6 +57,70 @@ const Register = ({ navigation }) => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleRegister = () => {
+    if (!email || !password || !confirmPassword) {
+      alert("Fill in all the fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    if (
+      !passwordRequirements.hasUppercase ||
+      !passwordRequirements.hasLowercase ||
+      !passwordRequirements.hasNumber ||
+      !passwordRequirements.hasSpecial
+    ) {
+      alert("Password does not meet the requirements");
+      return;
+    }
+
+    // Perform registration logic
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        // Registration successful
+        const user = userCredential.user;
+        alert("Sign up successful");
+        navigation.goBack();
+
+        // Add user details to Firestore
+        const db = firebase.firestore();
+        const usersCollection = db.collection("users");
+        const newUser = {
+          fullName: fullName,
+          age: age,
+          phoneNumber: phoneNumber,
+          email: user.email,
+        };
+        usersCollection
+          .doc(user.uid)
+          .set(newUser)
+          .then(() => {
+            // User details added to Firestore
+            console.log("User details added with ID: ", user.uid);
+          })
+          .catch((error) => {
+            // Error adding user details to Firestore
+            console.error("Error adding user details: ", error);
+          });
+      })
+      .catch((error) => {
+        // Handle registration error
+        if (error.code === "auth/email-already-in-use") {
+          alert("This email is already in use");
+        } else if (error.code === "auth/weak-password") {
+          alert("Password should be at least 8 characters long");
+        } else {
+          alert("Registration failed. Please try again later.");
+        }
+      });
   };
 
   return (
@@ -185,6 +265,14 @@ const Register = ({ navigation }) => {
             </View>
           </View>
         </ScrollView>
+        <View style={styles.registerButtonContainer}>
+          <TouchableOpacity
+            style={styles.registerButton}
+            onPress={handleRegister}
+          >
+            <Text style={styles.registerButtonText}>Register</Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -265,6 +353,24 @@ const styles = StyleSheet.create({
   },
   requirementFulfilled: {
     color: "green",
+  },
+  registerButtonContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+  registerButton: {
+    backgroundColor: "blue",
+    borderRadius: 5,
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+  },
+  registerButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
