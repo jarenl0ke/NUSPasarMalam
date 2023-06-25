@@ -13,7 +13,9 @@ import "firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
 
 const EditProfile = ({ navigation }) => {
+  // Initialise States
   const [fullName, setFullName] = useState("");
+  const [age, setAge] = useState("");
 
   return (
     <View style={styles.container}>
@@ -32,6 +34,18 @@ const EditProfile = ({ navigation }) => {
           placeholderTextColor="#666666"
           value={fullName}
           onChangeText={setFullName}
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Age</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Age"
+          placeholderTextColor="#666666"
+          value={age}
+          onChangeText={setAge}
+          keyboardType="numeric"
+          maxLength={2}
         />
       </View>
     </View>
