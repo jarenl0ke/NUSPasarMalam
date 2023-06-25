@@ -24,6 +24,12 @@ const Register = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false,
+    hasSpecial: false,
+  });
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -125,6 +131,59 @@ const Register = ({ navigation }) => {
             </TouchableOpacity>
             <Text style={styles.checkboxLabel}>Show Password</Text>
           </View>
+          <View style={styles.passwordRequirements}>
+            <Text style={styles.passwordRequirementsLabel}>
+              Password Requirements:
+            </Text>
+            <View style={styles.requirementItem}>
+              <Text
+                style={[
+                  styles.requirementText,
+                  passwordRequirements.hasUppercase
+                    ? styles.requirementFulfilled
+                    : null,
+                ]}
+              >
+                At least 1 uppercase letter
+              </Text>
+            </View>
+            <View style={styles.requirementItem}>
+              <Text
+                style={[
+                  styles.requirementText,
+                  passwordRequirements.hasLowercase
+                    ? styles.requirementFulfilled
+                    : null,
+                ]}
+              >
+                At least 1 lowercase letter
+              </Text>
+            </View>
+            <View style={styles.requirementItem}>
+              <Text
+                style={[
+                  styles.requirementText,
+                  passwordRequirements.hasNumber
+                    ? styles.requirementFulfilled
+                    : null,
+                ]}
+              >
+                At least 1 number
+              </Text>
+            </View>
+            <View style={styles.requirementItem}>
+              <Text
+                style={[
+                  styles.requirementText,
+                  passwordRequirements.hasSpecial
+                    ? styles.requirementFulfilled
+                    : null,
+                ]}
+              >
+                At least 1 special character
+              </Text>
+            </View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -186,6 +245,26 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     fontSize: 16,
     color: "#FFFFFF",
+  },
+  passwordRequirements: {
+    paddingHorizontal: 30,
+    marginBottom: 20,
+  },
+  passwordRequirementsLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#FFFFFF",
+  },
+  requirementItem: {
+    marginBottom: 5,
+  },
+  requirementText: {
+    fontSize: 14,
+    color: "#FFFFFF",
+  },
+  requirementFulfilled: {
+    color: "green",
   },
 });
 
