@@ -2,7 +2,7 @@
 # **NUSPasarMalam**
 ## Orbital 2023
 
-#### Purpose**:
+#### Purpose:
 - A platform where students are able to list items they would like to sell and request for items they may need urgently
 - Making it convinient for students who stay in NUS Campuses to sell and request for items due to their busy schedules, inability to afford the time to travel to different parts of Singapore or unwillingness to pay the extra $3 for tracked mailing
 - Allows transactions to be done at flexible timings - before class or in the middle of the night
