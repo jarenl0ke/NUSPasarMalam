@@ -6,6 +6,7 @@ import {
   Text,
   View,
   Alert,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import firebase from "../../database/Firebase";
@@ -91,7 +92,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000000",
-    paddingTop: Platform.OS === "android" ? 25 : 0, // Adjust for safe area on Android
     paddingHorizontal: 20,
     paddingBottom: 40,
   },
