@@ -9,6 +9,8 @@ import {
   Text,
   SafeAreaView,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 const Home = ({ navigation }) => {
   // Dummy to handle search functionality
@@ -99,6 +101,11 @@ const Home = ({ navigation }) => {
       </View>
     );
   };
+
+  const handleChatPress = () => {
+    navigation.navigate("MyChats");
+  };
+
   const renderBottomBar = () => {
     const handleAddListing = () => {
       navigation.navigate("AddListing");
@@ -150,6 +157,9 @@ const Home = ({ navigation }) => {
           placeholderTextColor="#777"
           onChangeText={handleSearch}
         />
+        <TouchableOpacity style={styles.chatButton} onPress={handleChatPress}>
+          <Ionicons name="chatbubbles" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
       </View>
       {renderCarouselItems(
         "Hot Listings:",
@@ -168,7 +178,6 @@ const Home = ({ navigation }) => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -180,8 +189,11 @@ const styles = StyleSheet.create({
   },
   searchBarContainer: {
     marginBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
   },
   searchBar: {
+    flex: 1,
     backgroundColor: "#1E1E1E",
     height: 50,
     borderColor: "#ccc",
@@ -190,6 +202,10 @@ const styles = StyleSheet.create({
     padding: 10,
     color: "#FFFFFF",
     fontSize: 16,
+  },
+  chatButton: {
+    marginLeft: 10,
+    padding: 10,
   },
   carouselContainer: {
     marginBottom: 20,
