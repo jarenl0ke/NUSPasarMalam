@@ -39,6 +39,7 @@ const Listing = () => {
   };
 
   const showDeleteButton = listing.userID === currentUserID;
+  const showChatButton = listing.userID !== currentUserID;
 
   const handleDeleteListing = () => {
     Alert.alert(
@@ -53,7 +54,11 @@ const Listing = () => {
 
   const deleteListing = async () => {
     try {
-      await firebase.firestore().collection("Listings").doc(listing.id).delete();
+      await firebase
+        .firestore()
+        .collection("Listings")
+        .doc(listing.id)
+        .delete();
       Alert.alert("Listing deleted successfully.");
       navigation.goBack();
     } catch (error) {
@@ -78,17 +83,25 @@ const Listing = () => {
     if (days > 0) {
       setListingTime(`Item listed ${days} ${days === 1 ? "day" : "days"} ago`);
     } else {
-      setListingTime(`Item listed ${hours} ${hours === 1 ? "hour" : "hours"} ago`);
+      setListingTime(
+        `Item listed ${hours} ${hours === 1 ? "hour" : "hours"} ago`
+      );
     }
   };
 
   const handleChatPress = () => {
-    navigation.navigate("Chat", { listing , imageUrl: listing.imageUrls[0] });
+    if (showChatButton) {
+      navigation.navigate("Chat", { listing, imageUrl: listing.imageUrls[0] });
+    }
   };
 
   const fetchSellerFullName = async () => {
     try {
-      const userDoc = await firebase.firestore().collection("users").doc(listing.userID).get();
+      const userDoc = await firebase
+        .firestore()
+        .collection("users")
+        .doc(listing.userID)
+        .get();
       const userData = userDoc.data();
       const fullName = userData.fullName;
       setSellerFullName(fullName);
@@ -110,7 +123,10 @@ const Listing = () => {
                 key={index}
                 onPress={() => handleImageClick(imageUrl)}
               >
-                <Image source={{ uri: imageUrl }} style={styles.carouselImage} />
+                <Image
+                  source={{ uri: imageUrl }}
+                  style={styles.carouselImage}
+                />
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -138,19 +154,33 @@ const Listing = () => {
             {listingTime}
           </Text>
           {showDeleteButton && (
-            <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteListing}>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={handleDeleteListing}
+            >
               <Text style={styles.deleteButtonText}>Delete Listing</Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity style={styles.chatButton} onPress={handleChatPress}>
-            <Text style={styles.chatButtonText}>Chat with Seller</Text>
-          </TouchableOpacity>
+          {showChatButton && (
+            <TouchableOpacity
+              style={styles.chatButton}
+              onPress={handleChatPress}
+            >
+              <Text style={styles.chatButtonText}>Chat with Seller</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
       <Modal visible={!!fullscreenImage} transparent={true}>
         <View style={styles.fullscreenContainer}>
-          <Image source={{ uri: fullscreenImage }} style={styles.fullscreenImage} />
-          <TouchableOpacity style={styles.closeButton} onPress={handleCloseFullscreen}>
+          <Image
+            source={{ uri: fullscreenImage }}
+            style={styles.fullscreenImage}
+          />
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={handleCloseFullscreen}
+          >
             <Ionicons name="close" size={24} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
