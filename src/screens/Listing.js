@@ -16,14 +16,17 @@ import firebase from "../../database/Firebase";
 import "firebase/auth";
 import "firebase/firestore";
 
-const Listing = ({ navigation }) => {
+const Listing = () => {
   const route = useRoute();
   const { listing } = route.params;
   const [fullscreenImage, setFullscreenImage] = useState(null);
   const [listingTime, setListingTime] = useState(null);
+  const [sellerFullName, setSellerFullName] = useState("");
   const currentUserID = firebase.auth().currentUser.uid;
+  const navigation = useNavigation();
 
   useEffect(() => {
+    fetchSellerFullName();
     calculateListingTime();
   }, []);
 
@@ -50,11 +53,7 @@ const Listing = ({ navigation }) => {
 
   const deleteListing = async () => {
     try {
-      await firebase
-        .firestore()
-        .collection("Listings")
-        .doc(listing.id)
-        .delete();
+      await firebase.firestore().collection("Listings").doc(listing.id).delete();
       Alert.alert("Listing deleted successfully.");
       navigation.goBack();
     } catch (error) {
@@ -79,9 +78,22 @@ const Listing = ({ navigation }) => {
     if (days > 0) {
       setListingTime(`Item listed ${days} ${days === 1 ? "day" : "days"} ago`);
     } else {
-      setListingTime(
-        `Item listed ${hours} ${hours === 1 ? "hour" : "hours"} ago`
-      );
+      setListingTime(`Item listed ${hours} ${hours === 1 ? "hour" : "hours"} ago`);
+    }
+  };
+
+  const handleChatPress = () => {
+    navigation.navigate("Chat", { listing , imageUrl: listing.imageUrls[0] });
+  };
+
+  const fetchSellerFullName = async () => {
+    try {
+      const userDoc = await firebase.firestore().collection("users").doc(listing.userID).get();
+      const userData = userDoc.data();
+      const fullName = userData.fullName;
+      setSellerFullName(fullName);
+    } catch (error) {
+      console.error("Error fetching seller's full name:", error);
     }
   };
 
@@ -98,10 +110,7 @@ const Listing = ({ navigation }) => {
                 key={index}
                 onPress={() => handleImageClick(imageUrl)}
               >
-                <Image
-                  source={{ uri: imageUrl }}
-                  style={styles.carouselImage}
-                />
+                <Image source={{ uri: imageUrl }} style={styles.carouselImage} />
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -118,6 +127,9 @@ const Listing = ({ navigation }) => {
             <Text style={styles.label}>Condition:</Text> {listing.condition}
           </Text>
           <Text style={styles.detailText}>
+            <Text style={styles.label}>Seller:</Text> {sellerFullName}
+          </Text>
+          <Text style={styles.detailText}>
             <Text style={styles.label}>Description:</Text> {"\n"}
             {listing.description}
           </Text>
@@ -126,25 +138,19 @@ const Listing = ({ navigation }) => {
             {listingTime}
           </Text>
           {showDeleteButton && (
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={handleDeleteListing}
-            >
+            <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteListing}>
               <Text style={styles.deleteButtonText}>Delete Listing</Text>
             </TouchableOpacity>
           )}
+          <TouchableOpacity style={styles.chatButton} onPress={handleChatPress}>
+            <Text style={styles.chatButtonText}>Chat with Seller</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
       <Modal visible={!!fullscreenImage} transparent={true}>
         <View style={styles.fullscreenContainer}>
-          <Image
-            source={{ uri: fullscreenImage }}
-            style={styles.fullscreenImage}
-          />
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={handleCloseFullscreen}
-          >
+          <Image source={{ uri: fullscreenImage }} style={styles.fullscreenImage} />
+          <TouchableOpacity style={styles.closeButton} onPress={handleCloseFullscreen}>
             <Ionicons name="close" size={24} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
@@ -214,6 +220,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   deleteButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  chatButton: {
+    backgroundColor: "#1E90FF",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  chatButtonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
     textAlign: "center",

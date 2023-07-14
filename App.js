@@ -11,6 +11,7 @@ import MyListings from "./src/screens/MyListings";
 import AddListing from "./src/screens/AddListing";
 import AllListings from "./src/screens/AllListings";
 import Listing from "./src/screens/Listing";
+import Chat from "./src/screens/Chat";
 
 const Stack = createStackNavigator();
 
@@ -64,6 +65,11 @@ export default function App() {
         <Stack.Screen
           name="Listing"
           component={Listing}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Chat"
+          component={Chat}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
