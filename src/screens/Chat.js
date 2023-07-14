@@ -25,12 +25,35 @@ const Chat = () => {
   const [inputMessage, setInputMessage] = useState("");
   const scrollViewRef = useRef(null);
   const navigation = useNavigation();
+  const currentUserID = firebase.auth().currentUser.uid;
+  const [chatID, setChatID] = useState(null);
 
   useEffect(() => {
+    let chatID = null;
     const unsubscribe = firebase
       .firestore()
       .collection("Chats")
-      .doc(listing.id)
+      .where("listingID", "==", listing.id)
+      .where("buyerID", "==", currentUserID)
+      .onSnapshot((snapshot) => {
+        if (!snapshot.empty) {
+          const chatDoc = snapshot.docs[0];
+          chatID = chatDoc.id;
+          fetchMessages(chatID);
+          setChatID(chatID); // Store chatID in state variable
+        } else {
+          createChat();
+        }
+      });
+
+    return () => unsubscribe();
+  }, []);
+
+  const fetchMessages = (chatID) => {
+    firebase
+      .firestore()
+      .collection("Chats")
+      .doc(chatID)
       .collection("Messages")
       .orderBy("timestamp")
       .onSnapshot((snapshot) => {
@@ -40,9 +63,23 @@ const Chat = () => {
         });
         setMessages(messageList);
       });
+  };
 
-    return () => unsubscribe();
-  }, []);
+  const createChat = async () => {
+    try {
+      const chatRef = await firebase.firestore().collection("Chats").add({
+        sellerID: listing.userID,
+        listingID: listing.id,
+        buyerID: currentUserID,
+      });
+
+      const newChatID = chatRef.id; // Get the newly created chat ID
+      setChatID(newChatID); // Store chatID in state variable
+      fetchMessages(newChatID);
+    } catch (error) {
+      console.error("Error creating chat:", error);
+    }
+  };
 
   const handleGoBack = () => {
     navigation.goBack();
@@ -53,17 +90,14 @@ const Chat = () => {
 
     try {
       const newMessage = {
-        sender: firebase.auth().currentUser.uid,
+        sender: currentUserID,
         message: inputMessage.trim(),
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       };
 
-      await firebase
-        .firestore()
-        .collection("Chats")
-        .doc(listing.id)
-        .collection("Messages")
-        .add(newMessage);
+      const chatRef = firebase.firestore().collection("Chats").doc(chatID); // Use the chatID obtained from fetchMessages or createChat
+
+      await chatRef.collection("Messages").add(newMessage);
 
       setInputMessage("");
       Keyboard.dismiss();
