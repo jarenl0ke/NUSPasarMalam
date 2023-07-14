@@ -37,10 +37,9 @@ const categories = [
 ];
 
 const sortOptions = [
+  { key: "dateLatestToOldest", label: "Date Listed: Newest to Oldest" },
   { key: "priceLowToHigh", label: "Price: Low to High" },
   { key: "priceHighToLow", label: "Price: High to Low" },
-  { key: "dateOldToNew", label: "Date Posted: Old to New" },
-  { key: "dateNewToOld", label: "Date Posted: New to Old" },
 ];
 
 const AllListings = ({ navigation }) => {
@@ -48,6 +47,7 @@ const AllListings = ({ navigation }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isSortModalVisible, setSortModalVisible] = useState(false);
   const [listings, setListings] = useState([]);
+  const [sortOption, setSortOption] = useState("dateLatestToOldest");
   const currentUserID = firebase.auth().currentUser.uid;
 
   useEffect(() => {
@@ -59,6 +59,15 @@ const AllListings = ({ navigation }) => {
           listingsRef = listingsRef.where("category", "==", selectedCategory);
         }
 
+        switch (sortOption) {
+          case "priceLowToHigh":
+            listingsRef = listingsRef.orderBy("price", "asc");
+            break;
+          case "priceHighToLow":
+            listingsRef = listingsRef.orderBy("price", "desc");
+            break;
+        }
+
         const listingsSnapshot = await listingsRef.get();
 
         const listingsData = listingsSnapshot.docs
@@ -68,14 +77,32 @@ const AllListings = ({ navigation }) => {
           }))
           .filter((listing) => listing.userID !== currentUserID);
 
-        setListings(listingsData);
+        const sortedListings = listingsData.sort((a, b) => {
+          const priceA = Number(a.price);
+          const priceB = Number(b.price);
+          const dateA = new Date(a.listingDateTime);
+          const dateB = new Date(b.listingDateTime);
+
+          switch (sortOption) {
+            case "priceLowToHigh":
+              return priceA - priceB;
+            case "priceHighToLow":
+              return priceB - priceA;
+            case "dateLatestToOldest":
+              return dateB - dateA;
+            default:
+              return 0;
+          }
+        });
+
+        setListings(sortedListings);
       } catch (error) {
         console.error("Error fetching listings:", error);
       }
     };
 
     fetchListings();
-  }, [selectedCategory]);
+  }, [selectedCategory, sortOption]);
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -90,6 +117,11 @@ const AllListings = ({ navigation }) => {
     toggleModal();
   };
 
+  const handleSortOptionSelect = (option) => {
+    setSortOption(option);
+    toggleSortModal();
+  };
+
   const renderListingItem = ({ item, index }) => {
     return (
       <TouchableOpacity
@@ -100,8 +132,10 @@ const AllListings = ({ navigation }) => {
           source={{ uri: item.imageUrls[0] }}
           style={styles.listingItemImage}
         />
-        <Text style={styles.listingItemTitle}>{item.listingTitle}</Text>
-        <Text style={styles.listingItemPrice}>Price: ${item.price}</Text>
+        <View style={styles.listingItemInfo}>
+          <Text style={styles.listingItemTitle}>{item.listingTitle}</Text>
+          <Text style={styles.listingItemPrice}>Price: ${item.price}</Text>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -127,9 +161,14 @@ const AllListings = ({ navigation }) => {
         <TouchableOpacity style={styles.categoryButton} onPress={toggleModal}>
           <Text style={styles.categoryButtonText}>{selectedCategory}</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.sortButton} onPress={toggleSortModal}>
-          <Text style={styles.sortButtonText}>Sort</Text>
+          <Text style={styles.sortButtonText}>
+            {sortOption === "priceLowToHigh"
+              ? "Price: Low to High"
+              : sortOption === "priceHighToLow"
+              ? "Price: High to Low"
+              : "Date Listed: Newest to Oldest"}
+          </Text>
         </TouchableOpacity>
       </View>
       <Modal
@@ -158,8 +197,6 @@ const AllListings = ({ navigation }) => {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-
-      {/* Add the sort modal content */}
       <Modal
         visible={isSortModalVisible}
         animationType="fade"
@@ -170,13 +207,29 @@ const AllListings = ({ navigation }) => {
           <View style={styles.modalBackdrop}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Sort By</Text>
+              {sortOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.key}
+                  style={styles.sortOption}
+                  onPress={() => handleSortOptionSelect(option.key)}
+                >
+                  <Text
+                    style={[
+                      styles.sortOptionText,
+                      option.key === sortOption && styles.activeSortOptionText,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
       <FlatList
         data={listings}
-        numColumns={2}
+        numColumns={2} // Set the number of columns
         renderItem={renderListingItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listingsContainer}
@@ -275,33 +328,52 @@ const styles = StyleSheet.create({
   },
   listingsContainer: {
     paddingBottom: 20,
+    paddingHorizontal: 5,
   },
   listingItemContainer: {
-    flex: 1,
     backgroundColor: "#1E1E1E",
-    margin: 10,
+    marginVertical: 10,
     borderRadius: 10,
     padding: 10,
     alignItems: "center",
+    flexBasis: "48%",
+    paddingHorizontal: 5,
+    marginHorizontal: 5,
   },
   listingItemImage: {
     width: "100%",
-    height: 150,
-    resizeMode: "cover",
+    aspectRatio: 1,
     borderRadius: 10,
     marginBottom: 10,
+  },
+  listingItemInfo: {
+    flex: 1,
+    alignItems: "center",
   },
   listingItemTitle: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#FFFFFF",
-    textAlign: "center",
     marginBottom: 5,
+    textAlign: "center",
   },
   listingItemPrice: {
     fontSize: 14,
     color: "#FFFFFF",
     textAlign: "center",
+  },
+  sortOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 5,
+  },
+  sortOptionText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    marginLeft: 5,
+  },
+  activeSortOptionText: {
+    fontWeight: "bold",
   },
 });
 
