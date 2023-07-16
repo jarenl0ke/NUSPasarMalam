@@ -18,6 +18,7 @@ import Categories from "../../constants/Categories";
 const AddRequest = ({ navigation }) => {
   const [requestTitle, setRequestTitle] = useState("");
   const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
 
   const handleGoBack = () => {
     navigation.goBack();
@@ -42,6 +43,10 @@ const AddRequest = ({ navigation }) => {
       <Text style={styles.categoryDropdownItemText}>{option}</Text>
     </View>
   );
+
+  const descriptionChangeHandler = (text) => {
+    setDescription(text);
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -74,6 +79,15 @@ const AddRequest = ({ navigation }) => {
                 )}
               </View>
             </ModalDropdown>
+            <TextInput
+              style={styles.descriptionInput}
+              placeholder="Description"
+              placeholderTextColor="#A9A9A9"
+              onChangeText={descriptionChangeHandler}
+              value={description}
+              multiline
+              numberOfLines={6}
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -105,6 +119,7 @@ const styles = StyleSheet.create({
   formContainer: {
     marginHorizontal: 20,
     marginBottom: 30,
+    flex: 1,
   },
   textInput: {
     backgroundColor: "#1E1E1E",
@@ -141,5 +156,15 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     color: "#FFFFFF",
+  },
+  descriptionInput: {
+    backgroundColor: "#1E1E1E",
+    color: "#FFFFFF",
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginBottom: 20,
+    height: 120,
+    textAlignVertical: "top",
   },
 });
