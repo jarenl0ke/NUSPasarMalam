@@ -89,11 +89,39 @@ const Listing = () => {
     }
   };
 
-  const handleChatPress = () => {
-    if (showChatButton) {
-      navigation.navigate("Chat", { listing, imageUrl: listing.imageUrls[0] });
+  const handleChatPress = async () => {
+    try {
+      const snapshot = await firebase
+        .firestore()
+        .collection("Chats")
+        .where("listingID", "==", listing.id)
+        .where("buyerID", "==", currentUserID)
+        .where("sellerID", "==", listing.userID)
+        .get();
+  
+      if (!snapshot.empty) {
+        // Chat already exists, navigate to the existing chat room
+        const chatDoc = snapshot.docs[0];
+        const chatID = chatDoc.id;
+        const imageUrl = listing.imageUrls[0];
+        navigation.navigate("Chat", { chatID, listing, imageUrl });
+      } else {
+        // Chat doesn't exist, create a new chat document and navigate to the chat room
+        const chatRef = await firebase.firestore().collection("Chats").add({
+          sellerID: listing.userID,
+          listingID: listing.id,
+          buyerID: currentUserID,
+        });
+  
+        const newChatID = chatRef.id;
+        const imageUrl = listing.imageUrls[0];
+        navigation.navigate("Chat", { chatID: newChatID, listing, imageUrl });
+      }
+    } catch (error) {
+      console.error("Error checking/changing chat status:", error);
     }
   };
+  
 
   const fetchSellerFullName = async () => {
     try {

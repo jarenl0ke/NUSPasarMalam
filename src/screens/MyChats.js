@@ -15,6 +15,7 @@ import "firebase/firestore";
 
 const MyChats = () => {
   const [chats, setChats] = useState([]);
+  const [activeTab, setActiveTab] = useState("Selling"); // Default active tab is "Selling"
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -25,13 +26,18 @@ const MyChats = () => {
         const snapshot = await firebase
           .firestore()
           .collection("Chats")
-          .where("sellerID", "==", currentUserID)
+          .where(
+            activeTab === "Selling" ? "sellerID" : "buyerID",
+            "==",
+            currentUserID
+          )
           .get();
 
         const chatList = snapshot.docs.map((doc) => ({
           id: doc.id,
+          buyerID: doc.data().buyerID,
           listingID: doc.data().listingID,
-          userID: doc.data().userID,
+          sellerID: doc.data().sellerID,
         }));
 
         setChats(chatList);
@@ -41,13 +47,13 @@ const MyChats = () => {
     };
 
     fetchChats();
-  }, []);
+  }, [activeTab]);
 
   const handleChatPress = async (listingID) => {
     const chatListing = chats.find((chat) => chat.listingID === listingID);
 
     if (chatListing) {
-      const { listingID, userID } = chatListing;
+      const { buyerID, listingID, sellerID } = chatListing;
 
       try {
         const listingSnapshot = await firebase
@@ -57,10 +63,15 @@ const MyChats = () => {
           .get();
 
         if (listingSnapshot.exists) {
-          const listingData = listingSnapshot.data();
-          const imageUrl = listingData.imageUrls[0];
-
-          navigation.navigate("Chat", { listing: listingData, imageUrl });
+          const imageUrl = listingSnapshot.data().imageUrls[0];
+          if (activeTab === "Selling") {
+            navigation.navigate("SellerChat", {
+              listing: listingSnapshot,
+              imageUrl,
+            });
+          } else {
+            navigation.navigate("Chat", { listing: listingSnapshot, imageUrl });
+          }
         } else {
           console.log("Listing does not exist");
         }
@@ -81,6 +92,40 @@ const MyChats = () => {
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.header}>My Chats</Text>
+      </View>
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === "Selling" && styles.activeTab,
+          ]}
+          onPress={() => setActiveTab("Selling")}
+        >
+          <Text
+            style={[
+              styles.tabButtonText,
+              activeTab === "Selling" && styles.activeTabText,
+            ]}
+          >
+            Selling
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === "Buying" && styles.activeTab,
+          ]}
+          onPress={() => setActiveTab("Buying")}
+        >
+          <Text
+            style={[
+              styles.tabButtonText,
+              activeTab === "Buying" && styles.activeTabText,
+            ]}
+          >
+            Buying
+          </Text>
+        </TouchableOpacity>
       </View>
       <ScrollView>
         {chats.length > 0 ? (
@@ -129,6 +174,26 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#FFFFFF",
+  },
+  tabContainer: {
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderColor: "#1E90FF",
+  },
+  tabButtonText: {
+    fontSize: 18,
+    color: "#FFFFFF",
+  },
+  activeTabText: {
+    color: "#1E90FF",
   },
   chatItem: {
     marginBottom: 20,
