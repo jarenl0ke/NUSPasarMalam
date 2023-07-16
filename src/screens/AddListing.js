@@ -19,27 +19,7 @@ import firebase from "../../database/Firebase";
 import "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-const categories = [
-  "Electronics",
-  "Clothing & Accessories",
-  "Home & Kitchen",
-  "Furniture",
-  "Books & Magazines",
-  "Sports & Outdoors",
-  "Beauty & Personal Care",
-  "Toys & Games",
-  "Health & Fitness",
-  "Jewelry & Watches",
-  "Automotive",
-  "Baby & Kids",
-  "Art & Collectibles",
-  "Musical Instruments",
-  "Pet Supplies",
-  "Tools & Home Improvement",
-  "Office Supplies",
-  "Garden & Outdoor",
-  "Food & Beverages",
-];
+import Categories from "../../constants/Categories";
 
 const AddListing = ({ navigation }) => {
   // States to track
@@ -270,7 +250,7 @@ const AddListing = ({ navigation }) => {
             <ModalDropdown
               style={styles.categoryDropdown}
               dropdownStyle={styles.categoryDropdownList}
-              options={categories}
+              options={Categories}
               onSelect={handleCategorySelect}
               renderRow={renderCategoryRow}
             >

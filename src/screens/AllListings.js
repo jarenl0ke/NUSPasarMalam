@@ -13,28 +13,7 @@ import firebase from "../../database/Firebase";
 import "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 
-const categories = [
-  "All Categories",
-  "Electronics",
-  "Clothing & Accessories",
-  "Home & Kitchen",
-  "Furniture",
-  "Books & Magazines",
-  "Sports & Outdoors",
-  "Beauty & Personal Care",
-  "Toys & Games",
-  "Health & Fitness",
-  "Jewelry & Watches",
-  "Automotive",
-  "Baby & Kids",
-  "Art & Collectibles",
-  "Musical Instruments",
-  "Pet Supplies",
-  "Tools & Home Improvement",
-  "Office Supplies",
-  "Garden & Outdoor",
-  "Food & Beverages",
-];
+import Categories from "../../constants/Categories";
 
 const sortOptions = [
   { key: "dateLatestToOldest", label: "Date Listed: Newest to Oldest" },
@@ -182,7 +161,7 @@ const AllListings = ({ navigation }) => {
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Select Category</Text>
               <FlatList
-                data={categories}
+                data={Categories}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.categoryOption}
