@@ -16,14 +16,17 @@ import firebase from "../../database/Firebase";
 import "firebase/auth";
 import "firebase/firestore";
 
-const Listing = ({ navigation }) => {
+const Listing = () => {
   const route = useRoute();
   const { listing } = route.params;
   const [fullscreenImage, setFullscreenImage] = useState(null);
   const [listingTime, setListingTime] = useState(null);
+  const [sellerFullName, setSellerFullName] = useState("");
   const currentUserID = firebase.auth().currentUser.uid;
+  const navigation = useNavigation();
 
   useEffect(() => {
+    fetchSellerFullName();
     calculateListingTime();
   }, []);
 
@@ -36,6 +39,7 @@ const Listing = ({ navigation }) => {
   };
 
   const showDeleteButton = listing.userID === currentUserID;
+  const showChatButton = listing.userID !== currentUserID;
 
   const handleDeleteListing = () => {
     Alert.alert(
@@ -85,6 +89,55 @@ const Listing = ({ navigation }) => {
     }
   };
 
+  const handleChatPress = async () => {
+    try {
+      const snapshot = await firebase
+        .firestore()
+        .collection("Chats")
+        .where("listingID", "==", listing.id)
+        .where("buyerID", "==", currentUserID)
+        .where("sellerID", "==", listing.userID)
+        .get();
+  
+      if (!snapshot.empty) {
+        // Chat already exists, navigate to the existing chat room
+        const chatDoc = snapshot.docs[0];
+        const chatID = chatDoc.id;
+        const imageUrl = listing.imageUrls[0];
+        navigation.navigate("Chat", { chatID, listing, imageUrl });
+      } else {
+        // Chat doesn't exist, create a new chat document and navigate to the chat room
+        const chatRef = await firebase.firestore().collection("Chats").add({
+          sellerID: listing.userID,
+          listingID: listing.id,
+          buyerID: currentUserID,
+        });
+  
+        const newChatID = chatRef.id;
+        const imageUrl = listing.imageUrls[0];
+        navigation.navigate("Chat", { chatID: newChatID, listing, imageUrl });
+      }
+    } catch (error) {
+      console.error("Error checking/changing chat status:", error);
+    }
+  };
+  
+
+  const fetchSellerFullName = async () => {
+    try {
+      const userDoc = await firebase
+        .firestore()
+        .collection("users")
+        .doc(listing.userID)
+        .get();
+      const userData = userDoc.data();
+      const fullName = userData.fullName;
+      setSellerFullName(fullName);
+    } catch (error) {
+      console.error("Error fetching seller's full name:", error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
@@ -118,6 +171,9 @@ const Listing = ({ navigation }) => {
             <Text style={styles.label}>Condition:</Text> {listing.condition}
           </Text>
           <Text style={styles.detailText}>
+            <Text style={styles.label}>Seller:</Text> {sellerFullName}
+          </Text>
+          <Text style={styles.detailText}>
             <Text style={styles.label}>Description:</Text> {"\n"}
             {listing.description}
           </Text>
@@ -131,6 +187,14 @@ const Listing = ({ navigation }) => {
               onPress={handleDeleteListing}
             >
               <Text style={styles.deleteButtonText}>Delete Listing</Text>
+            </TouchableOpacity>
+          )}
+          {showChatButton && (
+            <TouchableOpacity
+              style={styles.chatButton}
+              onPress={handleChatPress}
+            >
+              <Text style={styles.chatButtonText}>Chat with Seller</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -214,6 +278,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   deleteButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  chatButton: {
+    backgroundColor: "#1E90FF",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  chatButtonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
     textAlign: "center",
