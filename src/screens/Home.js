@@ -111,6 +111,10 @@ const Home = ({ navigation }) => {
       navigation.navigate("AddListing");
     };
 
+    const handleAddRequest = () => {
+      navigation.navigate("AddRequest");
+    };
+
     const handleSettings = () => {
       navigation.navigate("Settings");
     };
@@ -129,7 +133,7 @@ const Home = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.bottomBarItem}
-          onPress={handleAddListing}
+          onPress={handleAddRequest}
         >
           <Image
             source={require("../../assets/Images/sell.png")}
