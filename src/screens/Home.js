@@ -16,48 +16,56 @@ const categories = [
   {
     id: "1",
     title: "Books & Magazines",
+    categoryName: "Books & Magazines",
     icon: require("../../assets/Images/books.png"),
     backgroundColor: "#ff7f50", // Coral color
   },
   {
     id: "2",
     title: "Clothing",
+    categoryName: "Clothing & Accessories",
     icon: require("../../assets/Images/shirt.png"),
     backgroundColor: "#6495ed", // Cornflower blue color
   },
   {
     id: "3",
     title: "Electronic",
+    categoryName: "Electronics",
     icon: require("../../assets/Images/phone.png"),
     backgroundColor: "#20b2aa", // Light sea green color
   },
   {
     id: "4",
     title: "Health",
+    categoryName: "Health",
     icon: require("../../assets/Images/pill.png"),
     backgroundColor: "#9370db", // Medium purple color
   },
   {
     id: "5",
     title: "Home & Kitchen",
+    categoryName: "Home & Kitchen",
     icon: require("../../assets/Images/home.png"),
     backgroundColor: "#f08080", // Light coral color
   },
   {
     id: "6",
     title: "Food & Beverages",
+    categoryName: "Food & Beverages",
     icon: require("../../assets/Images/food.png"),
     backgroundColor: "#ffa500", // Orange color
   },
   {
     id: "7",
     title: "Furniture",
+    categoryName: "Furniture",
     icon: require("../../assets/Images/couch.png"),
     backgroundColor: "#00ced1", // Dark turquoise color
   },
   {
     id: "8",
     title: "View All",
+    categoryName: "All Categories",
     icon: require("../../assets/Images/view.png"),
     backgroundColor: "#87ceeb", // Sky blue color
   },
@@ -76,12 +84,7 @@ const Home = () => {
   };
 
   const handleCategoryPress = (category) => {
-    if (category.title === "View All") {
-      navigation.navigate("AllListings");
-    } else {
-      // Handle other category presses if needed
-      console.log("Category Pressed:", category.title);
-    }
+    navigation.navigate("AllListings", { selectedCategory: category.categoryName });
   };
 
   const renderCategoryItem = ({ item }) => {

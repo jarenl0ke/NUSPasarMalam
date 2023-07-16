@@ -12,6 +12,7 @@ import {
 import firebase from "../../database/Firebase";
 import "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
+import { useRoute } from "@react-navigation/native"; 
 
 import Categories from "../../constants/Categories";
 
@@ -22,13 +23,17 @@ const sortOptions = [
 ];
 
 const AllListings = ({ navigation }) => {
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const route = useRoute(); 
+  const { selectedCategory: initialSelectedCategory } = route.params;
+
+  const [selectedCategory, setSelectedCategory] = useState(initialSelectedCategory);
   const [isModalVisible, setModalVisible] = useState(false);
   const [isSortModalVisible, setSortModalVisible] = useState(false);
   const [listings, setListings] = useState([]);
   const [sortOption, setSortOption] = useState("dateLatestToOldest");
   const currentUserID = firebase.auth().currentUser.uid;
 
+  
   useEffect(() => {
     const fetchListings = async () => {
       try {
@@ -373,6 +378,11 @@ const styles = StyleSheet.create({
   },
   activeSortOptionText: {
     fontWeight: "bold",
+    fontSize: 18,
+  },
+  activeCategoryOptionText: {
+    fontWeight: "bold",
+    fontSize: 20,
   },
 });
 
