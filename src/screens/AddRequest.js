@@ -19,6 +19,7 @@ const AddRequest = ({ navigation }) => {
   const [requestTitle, setRequestTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   const handleGoBack = () => {
     navigation.goBack();
@@ -46,6 +47,10 @@ const AddRequest = ({ navigation }) => {
 
   const descriptionChangeHandler = (text) => {
     setDescription(text);
+  };
+
+  const requestItHandler = () => {
+    return;
   };
 
   return (
@@ -88,6 +93,16 @@ const AddRequest = ({ navigation }) => {
               multiline
               numberOfLines={6}
             />
+            <TouchableOpacity
+              style={[
+                styles.requestItButton,
+                isButtonDisabled && styles.disabledButton,
+              ]}
+              onPress={requestItHandler}
+              disabled={isButtonDisabled}
+            >
+              <Text style={styles.requestItButtonText}>Request It</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -166,5 +181,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     height: 120,
     textAlignVertical: "top",
+  },
+  requestItButton: {
+    backgroundColor: "#007bff",
+    borderRadius: 10,
+    paddingVertical: 15,
+    alignItems: "center",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  requestItButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
