@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   TouchableWithoutFeedback,
   Keyboard,
@@ -6,14 +6,42 @@ import {
   ScrollView,
   TouchableOpacity,
   Text,
+  View,
+  TextInput,
   StyleSheet,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import ModalDropdown from "react-native-modal-dropdown";
+
+import Categories from "../../constants/Categories";
 
 const AddRequest = ({ navigation }) => {
+  const [requestTitle, setRequestTitle] = useState("");
+  const [category, setCategory] = useState("");
+
   const handleGoBack = () => {
     navigation.goBack();
   };
+
+  const RequestTitleHandler = (text) => {
+    setRequestTitle(text);
+  };
+
+  const selectCategoryHandler = (category) => {
+    setCategory(category);
+  };
+
+  const renderCategoryRow = (option, index, isSelected) => (
+    <View
+      style={
+        isSelected
+          ? styles.categoryDropdownItemSelected
+          : styles.categoryDropdownItem
+      }
+    >
+      <Text style={styles.categoryDropdownItemText}>{option}</Text>
+    </View>
+  );
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -23,6 +51,30 @@ const AddRequest = ({ navigation }) => {
             <AntDesign name="arrowleft" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.pageHeader}>Add Request</Text>
+          <View style={styles.formContainer}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Request Title"
+              placeholderTextColor="#A9A9A9"
+              onChangeText={RequestTitleHandler}
+              value={requestTitle}
+            />
+            <ModalDropdown
+              style={styles.categoryDropdown}
+              dropdownStyle={styles.categoryDropdownList}
+              options={Categories}
+              onSelect={selectCategoryHandler}
+              renderRow={renderCategoryRow}
+            >
+              <View style={styles.dropdownContainer}>
+                {category ? (
+                  <Text style={styles.categoryText}>{category}</Text>
+                ) : (
+                  <Text style={styles.placeholderText}>Select Category</Text>
+                )}
+              </View>
+            </ModalDropdown>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -49,5 +101,45 @@ const styles = StyleSheet.create({
     marginTop: 50,
     marginBottom: 30,
     textAlign: "center",
+  },
+  formContainer: {
+    marginHorizontal: 20,
+    marginBottom: 30,
+  },
+  textInput: {
+    backgroundColor: "#1E1E1E",
+    color: "#FFFFFF",
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginBottom: 20,
+  },
+  categoryDropdown: {
+    backgroundColor: "#1E1E1E",
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginBottom: 20,
+  },
+  categoryDropdownList: {
+    backgroundColor: "#1E1E1E",
+    borderRadius: 10,
+    padding: 5,
+  },
+  categoryDropdownItem: {
+    padding: 10,
+  },
+  categoryDropdownItemSelected: {
+    backgroundColor: "#3D3D3D",
+    padding: 10,
+  },
+  categoryDropdownItemText: {
+    color: "#FFFFFF",
+  },
+  categoryText: {
+    color: "#FFFFFF",
+  },
+  placeholderText: {
+    color: "#FFFFFF",
   },
 });
