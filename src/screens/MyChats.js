@@ -6,6 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -17,6 +18,12 @@ const MyChats = () => {
   const [chats, setChats] = useState([]);
   const [activeTab, setActiveTab] = useState("Selling"); // Default active tab is "Selling"
   const navigation = useNavigation();
+
+  // Additional state to store chat details
+  const [chatDetails, setChatDetails] = useState([]);
+
+  // Additional state to store listing names
+  const [listingTitles, setListingTitles] = useState({});
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -46,11 +53,111 @@ const MyChats = () => {
       }
     };
 
+    const fetchChatDetails = async () => {
+      try {
+        const details = await Promise.all(
+          chats.map(async (chat) => {
+            const lastMessage = await fetchLastMessage(chat.id);
+            const imageUrl = await fetchListingImage(chat.listingID);
+            return {
+              id: chat.id,
+              listingID: chat.listingID,
+              lastMessage,
+              imageUrl,
+            };
+          })
+        );
+
+        setChatDetails(details);
+      } catch (error) {
+        console.error("Error fetching chat details:", error);
+      }
+    };
+
+    const fetchListingTitles = async () => {
+        try {
+          const titles = await Promise.all(
+            chats.map(async (chat) => {
+              const listingSnapshot = await firebase
+                .firestore()
+                .collection("Listings")
+                .doc(chat.listingID)
+                .get();
+  
+              if (listingSnapshot.exists) {
+                return {
+                  id: chat.id,
+                  title: listingSnapshot.data().listingTitle, // Get the listing title
+                };
+              } else {
+                return {
+                  id: chat.id,
+                  title: "Listing not found",
+                };
+              }
+            })
+          );
+  
+          const titlesMap = {};
+          titles.forEach((item) => {
+            titlesMap[item.id] = item.title;
+          });
+  
+          setListingTitles(titlesMap);
+        } catch (error) {
+          console.error("Error fetching listing titles:", error);
+        }
+      };
+
     fetchChats();
-  }, [activeTab]);
+    fetchChatDetails();
+    fetchListingTitles();
+  }, [activeTab, chats]);
+
+  const fetchLastMessage = async (chatID) => {
+    try {
+      const snapshot = await firebase
+        .firestore()
+        .collection("Chats")
+        .doc(chatID)
+        .collection("Messages")
+        .orderBy("timestamp", "desc")
+        .limit(1)
+        .get();
+
+      if (!snapshot.empty) {
+        return snapshot.docs[0].data().message;
+      } else {
+        return "No messages";
+      }
+    } catch (error) {
+      console.error("Error fetching last message:", error);
+      return "Error";
+    }
+  };
+
+  const fetchListingImage = async (listingID) => {
+    try {
+      const snapshot = await firebase
+        .firestore()
+        .collection("Listings")
+        .doc(listingID)
+        .get();
+
+      if (snapshot.exists) {
+        const imageUrl = snapshot.data().imageUrls[0];
+        return imageUrl;
+      } else {
+        return "";
+      }
+    } catch (error) {
+      console.error("Error fetching listing image:", error);
+      return "";
+    }
+  };
 
   const handleChatPress = async (listingID) => {
-    const chatListing = chats.find((chat) => chat.listingID === listingID);
+    const chatListing = chatDetails.find((chat) => chat.listingID === listingID);
 
     if (chatListing) {
       const { buyerID, listingID, sellerID } = chatListing;
@@ -63,7 +170,7 @@ const MyChats = () => {
           .get();
 
         if (listingSnapshot.exists) {
-          const imageUrl = listingSnapshot.data().imageUrls[0];
+          const imageUrl = chatListing.imageUrl;
           if (activeTab === "Selling") {
             navigation.navigate("SellerChat", {
               listing: listingSnapshot,
@@ -128,22 +235,26 @@ const MyChats = () => {
         </TouchableOpacity>
       </View>
       <ScrollView>
-        {chats.length > 0 ? (
-          chats.map((chat) => (
+        {chatDetails.length > 0 ? (
+          chatDetails.map((chat) => (
             <TouchableOpacity
               key={chat.id}
               style={styles.chatItem}
               onPress={() => handleChatPress(chat.listingID)}
             >
               <View style={styles.chatContent}>
-                <Ionicons
-                  name="chatbubble-ellipses-outline"
-                  size={24}
-                  color="#FFFFFF"
+                <Image
+                  source={{ uri: chat.imageUrl }}
+                  style={styles.listingImage}
                 />
-                <Text style={styles.chatText}>
-                  Chat for Listing {chat.listingID}
-                </Text>
+                <View style={styles.chatDetails}>
+                  <Text style={styles.chatTitle}>
+                    {listingTitles[chat.id]} {/* Display listing name */}
+                  </Text>
+                  <Text style={styles.lastMessageText}>
+                    Last Message: {chat.lastMessage}
+                  </Text>
+                </View>
               </View>
             </TouchableOpacity>
           ))
@@ -205,10 +316,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  chatText: {
-    marginLeft: 10,
-    fontSize: 16,
+  listingImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 10,
+  },
+  chatDetails: {
+    flex: 1,
+  },
+  chatTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
     color: "#FFFFFF",
+    marginBottom: 5,
+  },
+  lastMessageText: {
+    fontSize: 14,
+    color: "#D3D3D3", // Light gray color for last message text
   },
   noChatsText: {
     fontSize: 16,
