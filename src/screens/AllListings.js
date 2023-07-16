@@ -96,6 +96,9 @@ const AllListings = ({ navigation }) => {
     toggleModal();
   };
 
+  const allCategoriesOption = "All Categories";
+  const categoriesWithAllOption = [allCategoriesOption, ...Categories];
+
   const handleSortOptionSelect = (option) => {
     setSortOption(option);
     toggleSortModal();
@@ -146,7 +149,7 @@ const AllListings = ({ navigation }) => {
               ? "Price: Low to High"
               : sortOption === "priceHighToLow"
               ? "Price: High to Low"
-              : "Date Listed: Newest to Oldest"}
+              : "Date Listed: \nNewest to Oldest"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -160,14 +163,23 @@ const AllListings = ({ navigation }) => {
           <View style={styles.modalBackdrop}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Select Category</Text>
+              {/* Use the categoriesWithAllOption array in the FlatList */}
               <FlatList
-                data={Categories}
+                data={categoriesWithAllOption}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.categoryOption}
                     onPress={() => handleCategorySelect(item)}
                   >
-                    <Text style={styles.categoryOptionText}>{item}</Text>
+                    <Text
+                      style={[
+                        styles.categoryOptionText,
+                        item === selectedCategory &&
+                          styles.activeCategoryOptionText,
+                      ]}
+                    >
+                      {item}
+                    </Text>
                   </TouchableOpacity>
                 )}
                 keyExtractor={(item) => item}
@@ -250,6 +262,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 10,
   },
   categoryButton: {
@@ -259,6 +272,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 8,
     paddingHorizontal: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    height:50,
+
   },
   categoryButtonText: {
     color: "#000000",
@@ -273,6 +290,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 8,
     paddingHorizontal: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    height:50,
   },
   sortButtonText: {
     color: "#000000",
