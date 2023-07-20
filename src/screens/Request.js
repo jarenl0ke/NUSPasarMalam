@@ -54,7 +54,7 @@ const Request = () => {
       setRequestTime(`Item listed ${days} ${days === 1 ? "day" : "days"} ago`);
     } else {
       setRequestTime(
-        `Item listed ${hours} ${hours === 1 ? "hour" : "hours"} ago`
+        `Item requested ${hours} ${hours === 1 ? "hour" : "hours"} ago`
       );
     }
   };
@@ -135,7 +135,7 @@ const Request = () => {
             <Text style={styles.label}>Category:</Text> {request.category}
           </Text>
           <Text style={styles.detailText}>
-            <Text style={styles.label}>Seller:</Text> {requesterFullName}
+            <Text style={styles.label}>Requester:</Text> {requesterFullName}
           </Text>
           <Text style={styles.detailText}>
             <Text style={styles.label}>Description:</Text> {"\n"}

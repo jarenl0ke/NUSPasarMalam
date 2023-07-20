@@ -18,16 +18,20 @@ const Home = ({ navigation }) => {
     console.log("Searching for:", text);
   };
 
-  // Navigate to all listings Screen
-  const handleViewAll = () => {
+  const viewListingsHandler = () => {
     navigation.navigate("AllListings");
+  };
+
+  const viewRequestsHandler = () => {
+    navigation.navigate("AllRequests");
   };
 
   const renderCarouselItems = (
     header,
     placeholderImage,
     placeholderPrice,
-    placeholderPosted
+    placeholderPosted,
+    type
   ) => {
     // Example data for carousel items
     const items = [
@@ -95,7 +99,12 @@ const Home = ({ navigation }) => {
             </TouchableOpacity>
           ))}
         </ScrollView>
-        <TouchableOpacity style={styles.viewAllButton} onPress={handleViewAll}>
+        <TouchableOpacity
+          style={styles.viewAllButton}
+          onPress={
+            type === "listings" ? viewListingsHandler : viewRequestsHandler
+          }
+        >
           <Text style={styles.viewAllButtonText}>View All</Text>
         </TouchableOpacity>
       </View>
@@ -169,14 +178,16 @@ const Home = ({ navigation }) => {
         "Hot Listings:",
         require("../../assets/Images/aircon.jpeg"),
         "10",
-        "2 days"
+        "2 days",
+        "listings"
       )}
       <View style={styles.gap} />
       {renderCarouselItems(
         "Hot Requests:",
         require("../../assets/Images/lipstick.jpeg"),
         "20",
-        "1 day"
+        "1 day",
+        "requests"
       )}
       {renderBottomBar()}
     </View>
