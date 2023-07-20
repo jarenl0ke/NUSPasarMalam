@@ -52,8 +52,8 @@ const MyRequests = ({ navigation }) => {
       });
   };
 
-  const requestPressHandler = (listing) => {
-    return;
+  const requestPressHandler = (request) => {
+    navigation.navigate("Request", { request });
   };
 
   return (
@@ -63,7 +63,7 @@ const MyRequests = ({ navigation }) => {
       </TouchableOpacity>
       <Text style={styles.header}>My Requests</Text>
       <ScrollView
-        style={styles.listingsContainer}
+        style={styles.requestsContainer}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -82,7 +82,7 @@ const MyRequests = ({ navigation }) => {
             <TouchableOpacity
               key={index}
               style={styles.listingItem}
-              onPress={requestPressHandler}
+              onPress={() => requestPressHandler(request)}
             >
               <View style={styles.listingDetails}>
                 <Text style={styles.listingTitle}>{request.requestTitle}</Text>
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#FFFFFF",
   },
-  listingsContainer: {
+  requestsContainer: {
     flex: 1,
   },
   listingItem: {

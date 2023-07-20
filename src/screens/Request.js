@@ -1,7 +1,137 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import {
+  SafeAreaView,
+  TouchableOpacity,
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import firebase from "../../database/Firebase";
+import "firebase/auth";
+import "firebase/firestore";
 
 const Request = () => {
-  return;
+  const route = useRoute();
+  const { request } = route.params;
+  const [requesterFullName, setRequesterFullName] = useState("");
+  const [requestTime, setRequestTime] = useState(null);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    fetchRequesterFullName();
+    calculateRequestTime();
+  }, []);
+
+  const fetchRequesterFullName = async () => {
+    try {
+      const userDoc = await firebase
+        .firestore()
+        .collection("users")
+        .doc(request.userID)
+        .get();
+      const userData = userDoc.data();
+      const fullName = userData.fullName;
+      setRequesterFullName(fullName);
+    } catch (error) {
+      console.error("Error fetching seller's full name:", error);
+    }
+  };
+
+  const calculateRequestTime = () => {
+    const currentTime = new Date();
+    const requestDateTime = new Date(request.listingDateTime);
+    const timeDiff = currentTime - requestDateTime;
+
+    const minutes = Math.floor(timeDiff / 1000 / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) {
+      setRequestTime(`Item listed ${days} ${days === 1 ? "day" : "days"} ago`);
+    } else {
+      setRequestTime(
+        `Item listed ${hours} ${hours === 1 ? "hour" : "hours"} ago`
+      );
+    }
+  };
+
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
+        <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
+      <ScrollView>
+        <View style={styles.requestDetailsContainer}>
+          <Text style={styles.requestTitle}>{request.requestTitle}</Text>
+          <Text style={styles.detailText}>
+            <Text style={styles.label}>Category:</Text> {request.category}
+          </Text>
+          <Text style={styles.detailText}>
+            <Text style={styles.label}>Seller:</Text> {requesterFullName}
+          </Text>
+          <Text style={styles.detailText}>
+            <Text style={styles.label}>Description:</Text> {"\n"}
+            {request.description}
+          </Text>
+          <Text style={styles.requestTime}>
+            {"\n"}
+            {requestTime}
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
 };
 
 export default Request;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#000000",
+    paddingTop: Platform.OS === "android" ? 25 : 0, // Adjust for safe area on Android
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  goBackButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 1,
+    padding: 10,
+  },
+  requestDetailsContainer: {
+    marginTop: 25,
+    padding: 10,
+    backgroundColor: "#1E1E1E",
+    borderRadius: 5,
+  },
+  requestTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginBottom: 10,
+  },
+  label: {
+    color: "#87CEEB",
+    fontWeight: "bold",
+    marginRight: 5,
+  },
+  detailText: {
+    fontSize: 16,
+    color: "#FFFFFF",
+    marginBottom: 10,
+  },
+  requestTime: {
+    fontSize: 14,
+    color: "#FFFFFF",
+    marginBottom: 10,
+  },
+});

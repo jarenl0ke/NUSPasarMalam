@@ -91,7 +91,7 @@ const AddRequest = ({ navigation }) => {
           listingDateTime: new Date().toISOString(),
         };
 
-        const RequestRef = await firebase
+        const requestRef = await firebase
           .firestore()
           .collection("Requests")
           .add(requestData);
