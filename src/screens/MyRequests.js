@@ -5,6 +5,8 @@ import {
   Text,
   ScrollView,
   RefreshControl,
+  View,
+  ActivityIndicator,
   StyleSheet,
 } from "react-native";
 import firebase from "../../database/Firebase";
@@ -13,7 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 const MyRequests = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
-  const [listings, setListings] = useState([]);
+  const [requests, setRequests] = useState([]);
 
   useEffect(() => {
     fetchRequests();
@@ -30,7 +32,7 @@ const MyRequests = ({ navigation }) => {
         id: doc.id,
         ...doc.data(),
       }));
-      setListings(requestsData);
+      setRequests(requestsData);
     } catch (error) {
       console.error("Error fetching listings: ", error);
     }
@@ -50,6 +52,10 @@ const MyRequests = ({ navigation }) => {
       });
   };
 
+  const requestPressHandler = (listing) => {
+    return;
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
@@ -66,7 +72,25 @@ const MyRequests = ({ navigation }) => {
             tintColor={"#FFFFFF"}
           />
         }
-      ></ScrollView>
+      >
+        {requests.length === 0 && !refreshing ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#FFFFFF" />
+          </View>
+        ) : (
+          requests.map((request, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.listingItem}
+              onPress={requestPressHandler}
+            >
+              <View style={styles.listingDetails}>
+                <Text style={styles.listingTitle}>{request.requestTitle}</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -96,5 +120,22 @@ const styles = StyleSheet.create({
   },
   listingsContainer: {
     flex: 1,
+  },
+  listingItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    padding: 10,
+    backgroundColor: "#1E1E1E",
+    borderRadius: 5,
+  },
+  listingDetails: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  listingTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
 });
