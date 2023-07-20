@@ -10,8 +10,9 @@ import EditProfile from "./src/screens/EditProfile";
 import MyListings from "./src/screens/MyListings";
 import MyRequests from "./src/screens/MyRequests";
 import AddListing from "./src/screens/AddListing";
-import AllListings from "./src/screens/AllListings";
 import AddRequest from "./src/screens/AddRequest";
+import AllListings from "./src/screens/AllListings";
+import AllRequests from "./src/screens/AllRequests";
 import Listing from "./src/screens/Listing";
 import Request from "./src/screens/Request";
 import Chat from "./src/screens/Chat";
@@ -68,13 +69,18 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="AddRequest"
+          component={AddRequest}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="AllListings"
           component={AllListings}
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="AddRequest"
-          component={AddRequest}
+          name="AllRequests"
+          component={AllRequests}
           options={{ headerShown: false }}
         />
         <Stack.Screen
