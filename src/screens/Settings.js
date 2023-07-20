@@ -6,7 +6,6 @@ import {
   Text,
   View,
   Alert,
-  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import firebase from "../../database/Firebase";
@@ -26,6 +25,10 @@ const Settings = ({ navigation }) => {
   // To Navigate to MyListings Screen
   const handleMyListings = () => {
     navigation.navigate("MyListings");
+  };
+
+  const myRequestsHandler = () => {
+    navigation.navigate("MyRequests");
   };
 
   // Dummy to Navigate to Login
@@ -73,6 +76,14 @@ const Settings = ({ navigation }) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.buttonContainer}
+        onPress={myRequestsHandler}
+      >
+        <View style={styles.button}>
+          <Text style={styles.buttonText}>My Requests</Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.buttonContainer}
         onPress={handleEditProfile}
       >
         <View style={styles.button}>
@@ -87,6 +98,8 @@ const Settings = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+
+export default Settings;
 
 const styles = StyleSheet.create({
   container: {
@@ -126,5 +139,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-export default Settings;

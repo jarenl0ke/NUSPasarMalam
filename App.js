@@ -8,6 +8,7 @@ import Home from "./src/screens/Home";
 import Settings from "./src/screens/Settings";
 import EditProfile from "./src/screens/EditProfile";
 import MyListings from "./src/screens/MyListings";
+import MyRequests from "./src/screens/MyRequests";
 import AddListing from "./src/screens/AddListing";
 import AllListings from "./src/screens/AllListings";
 import AddRequest from "./src/screens/AddRequest";
@@ -53,6 +54,11 @@ export default function App() {
         <Stack.Screen
           name="MyListings"
           component={MyListings}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="MyRequests"
+          component={MyRequests}
           options={{ headerShown: false }}
         />
         <Stack.Screen
