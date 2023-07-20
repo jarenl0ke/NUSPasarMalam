@@ -9,10 +9,10 @@ import {
   StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import firebase from "../../database/Firebase";
+import firebase from "../../../database/Firebase";
 import "firebase/auth";
 
-import Categories from "../../constants/Categories";
+import Categories from "../../../constants/Categories";
 
 const AllRequests = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState("All Categories");

@@ -15,11 +15,11 @@ import {
 import { AntDesign } from "@expo/vector-icons";
 import ModalDropdown from "react-native-modal-dropdown";
 import * as ImagePicker from "expo-image-picker";
-import firebase from "../../database/Firebase";
+import firebase from "../../../database/Firebase";
 import "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-import Categories from "../../constants/Categories";
+import Categories from "../../../constants/Categories";
 
 const AddListing = ({ navigation }) => {
   // States to track

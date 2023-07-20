@@ -13,11 +13,11 @@ import {
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import ModalDropdown from "react-native-modal-dropdown";
-import firebase from "../../database/Firebase";
+import firebase from "../../../database/Firebase";
 import "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-import Categories from "../../constants/Categories";
+import Categories from "../../../constants/Categories";
 
 const AddRequest = ({ navigation }) => {
   const [requestTitle, setRequestTitle] = useState("");

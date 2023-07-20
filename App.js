@@ -7,17 +7,17 @@ import Register from "./src/screens/Register";
 import Home from "./src/screens/Home";
 import Settings from "./src/screens/Settings";
 import EditProfile from "./src/screens/EditProfile";
-import MyListings from "./src/screens/MyListings";
-import MyRequests from "./src/screens/MyRequests";
-import AddListing from "./src/screens/AddListing";
-import AddRequest from "./src/screens/AddRequest";
-import AllListings from "./src/screens/AllListings";
-import AllRequests from "./src/screens/AllRequests";
-import Listing from "./src/screens/Listing";
-import Request from "./src/screens/Request";
-import Chat from "./src/screens/Chat";
-import MyChats from "./src/screens/MyChats";
-import SellerChat from "./src/screens/SellerChat";
+import MyListings from "./src/screens/listings/MyListings";
+import MyRequests from "./src/screens/requests/MyRequests";
+import AddListing from "./src/screens/listings/AddListing";
+import AddRequest from "./src/screens/requests/AddRequest";
+import AllListings from "./src/screens/listings/AllListings";
+import AllRequests from "./src/screens/requests/AllRequests";
+import Listing from "./src/screens/listings/Listing";
+import Request from "./src/screens/requests/Request";
+import Chat from "./src/screens/chats/Chat";
+import MyChats from "./src/screens/chats/MyChats";
+import SellerChat from "./src/screens/chats/SellerChat";
 
 const Stack = createStackNavigator();
 
