@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import firebase from "../../database/Firebase";
+import firebase from "../../../database/Firebase";
 import "firebase/auth";
 import "firebase/firestore";
 
@@ -75,39 +75,39 @@ const MyChats = () => {
     };
 
     const fetchListingTitles = async () => {
-        try {
-          const titles = await Promise.all(
-            chats.map(async (chat) => {
-              const listingSnapshot = await firebase
-                .firestore()
-                .collection("Listings")
-                .doc(chat.listingID)
-                .get();
-  
-              if (listingSnapshot.exists) {
-                return {
-                  id: chat.id,
-                  title: listingSnapshot.data().listingTitle, // Get the listing title
-                };
-              } else {
-                return {
-                  id: chat.id,
-                  title: "Listing not found",
-                };
-              }
-            })
-          );
-  
-          const titlesMap = {};
-          titles.forEach((item) => {
-            titlesMap[item.id] = item.title;
-          });
-  
-          setListingTitles(titlesMap);
-        } catch (error) {
-          console.error("Error fetching listing titles:", error);
-        }
-      };
+      try {
+        const titles = await Promise.all(
+          chats.map(async (chat) => {
+            const listingSnapshot = await firebase
+              .firestore()
+              .collection("Listings")
+              .doc(chat.listingID)
+              .get();
+
+            if (listingSnapshot.exists) {
+              return {
+                id: chat.id,
+                title: listingSnapshot.data().listingTitle, // Get the listing title
+              };
+            } else {
+              return {
+                id: chat.id,
+                title: "Listing not found",
+              };
+            }
+          })
+        );
+
+        const titlesMap = {};
+        titles.forEach((item) => {
+          titlesMap[item.id] = item.title;
+        });
+
+        setListingTitles(titlesMap);
+      } catch (error) {
+        console.error("Error fetching listing titles:", error);
+      }
+    };
 
     fetchChats();
     fetchChatDetails();
@@ -157,7 +157,9 @@ const MyChats = () => {
   };
 
   const handleChatPress = async (listingID) => {
-    const chatListing = chatDetails.find((chat) => chat.listingID === listingID);
+    const chatListing = chatDetails.find(
+      (chat) => chat.listingID === listingID
+    );
 
     if (chatListing) {
       const { buyerID, listingID, sellerID } = chatListing;
@@ -218,10 +220,7 @@ const MyChats = () => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === "Buying" && styles.activeTab,
-          ]}
+          style={[styles.tabButton, activeTab === "Buying" && styles.activeTab]}
           onPress={() => setActiveTab("Buying")}
         >
           <Text

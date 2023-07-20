@@ -1,40 +1,38 @@
 import React, { useState, useEffect } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
   SafeAreaView,
+  TouchableOpacity,
+  Text,
   ScrollView,
-  Image,
   RefreshControl,
+  View,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
-import firebase from "../../database/Firebase";
+import firebase from "../../../database/Firebase";
 import "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 
-const MyListings = ({ navigation }) => {
-  // States
+const MyRequests = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
-  const [listings, setListings] = useState([]);
+  const [requests, setRequests] = useState([]);
 
   useEffect(() => {
-    fetchListings();
+    fetchRequests();
   }, []);
 
-  const fetchListings = async () => {
+  const fetchRequests = async () => {
     try {
       const user = firebase.auth().currentUser;
-      const listingsRef = firebase.firestore().collection("Listings");
-      const querySnapshot = await listingsRef
+      const requestsRef = firebase.firestore().collection("Requests");
+      const querySnapshot = await requestsRef
         .where("userID", "==", user.uid)
         .get();
-      const listingsData = querySnapshot.docs.map((doc) => ({
+      const requestsData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setListings(listingsData);
+      setRequests(requestsData);
     } catch (error) {
       console.error("Error fetching listings: ", error);
     }
@@ -44,9 +42,9 @@ const MyListings = ({ navigation }) => {
     navigation.goBack();
   };
 
-  const handleRefresh = () => {
+  const refreshHandler = () => {
     setRefreshing(true);
-    fetchListings()
+    fetchRequests()
       .then(() => setRefreshing(false))
       .catch((error) => {
         console.error("Error refreshing listings: ", error);
@@ -54,8 +52,8 @@ const MyListings = ({ navigation }) => {
       });
   };
 
-  const handleListingPress = (listing) => {
-    navigation.navigate("Listing", { listing });
+  const requestPressHandler = (request) => {
+    navigation.navigate("Request", { request });
   };
 
   return (
@@ -63,39 +61,31 @@ const MyListings = ({ navigation }) => {
       <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
         <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
       </TouchableOpacity>
-      <Text style={styles.header}>My Listings</Text>
+      <Text style={styles.header}>My Requests</Text>
       <ScrollView
-        style={styles.listingsContainer}
+        style={styles.requestsContainer}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={handleRefresh}
+            onRefresh={refreshHandler}
             colors={["#FFFFFF"]}
             tintColor={"#FFFFFF"}
           />
         }
       >
-        {listings.length === 0 && !refreshing ? (
+        {requests.length === 0 && !refreshing ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#FFFFFF" />
           </View>
         ) : (
-          listings.map((listing, index) => (
+          requests.map((request, index) => (
             <TouchableOpacity
               key={index}
               style={styles.listingItem}
-              onPress={() => handleListingPress(listing)}
+              onPress={() => requestPressHandler}
             >
-              <View style={styles.listingImageContainer}>
-                <Image
-                  source={{ uri: listing.imageUrls[0] }}
-                  style={styles.listingImage}
-                />
-              </View>
               <View style={styles.listingDetails}>
-                <Text style={styles.listingTitle}>{listing.listingTitle}</Text>
-                <Text style={styles.listingPrice}>${listing.price}</Text>
-                <Text style={styles.listingCondition}>{listing.condition}</Text>
+                <Text style={styles.listingTitle}>{request.requestTitle}</Text>
               </View>
             </TouchableOpacity>
           ))
@@ -104,6 +94,8 @@ const MyListings = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+
+export default MyRequests;
 
 const styles = StyleSheet.create({
   container: {
@@ -126,14 +118,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#FFFFFF",
   },
-  listingsContainer: {
+  requestsContainer: {
     flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 9999,
   },
   listingItem: {
     flexDirection: "row",
@@ -142,16 +128,6 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#1E1E1E",
     borderRadius: 5,
-  },
-  listingImageContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 5,
-    overflow: "hidden",
-  },
-  listingImage: {
-    flex: 1,
-    resizeMode: "cover",
   },
   listingDetails: {
     flex: 1,
@@ -162,14 +138,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#FFFFFF",
   },
-  listingPrice: {
-    fontSize: 14,
-    color: "#FFFFFF",
-  },
-  listingCondition: {
-    fontSize: 14,
-    color: "#FFFFFF",
-  },
 });
-
-export default MyListings;
