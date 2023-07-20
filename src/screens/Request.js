@@ -5,6 +5,7 @@ import {
   ScrollView,
   View,
   Text,
+  Alert,
   StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -62,6 +63,66 @@ const Request = () => {
     navigation.goBack();
   };
 
+  const currentUserID = firebase.auth().currentUser.uid;
+  const showDeleteButton = request.userID === currentUserID;
+  const showChatButton = request.userID !== currentUserID;
+
+  const deleteRequestHandler = async () => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this listing?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: deleteListing },
+      ]
+    );
+  };
+
+  const deleteListing = async () => {
+    try {
+      await firebase
+        .firestore()
+        .collection("Requests")
+        .doc(request.id)
+        .delete();
+      Alert.alert("Request deleted successfully.");
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error deleting request:", error);
+      Alert.alert("An error occurred while deleting the request.");
+    }
+  };
+
+  const chatPressHandler = async () => {
+    try {
+      const snapshot = await firebase
+        .firestore()
+        .collection("Chats")
+        .where("requestID", "==", request.id)
+        .where("userID", "==", currentUserID)
+        .where("requesterID", "==", request.userID)
+        .get();
+
+      // Check if chat already exists
+      if (!snapshot.empty) {
+        const chatDoc = snapshot.docs[0];
+        const chatID = chatDoc.id;
+        navigation.navigate("Chat", { chatID, request });
+      } else {
+        const chatRef = await firebase.firestore().collection("Chats").add({
+          requestID: request.id,
+          userID: currentUserID,
+          requesterID: request.userID,
+        });
+
+        const newChatID = chatRef.id;
+        navigation.navigate("Chat", { chatID: newChatID, listing });
+      }
+    } catch (error) {
+      console.error("Error checking/changing chat status:", error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
@@ -84,6 +145,22 @@ const Request = () => {
             {"\n"}
             {requestTime}
           </Text>
+          {showDeleteButton && (
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={deleteRequestHandler}
+            >
+              <Text style={styles.deleteButtonText}>Delete Listing</Text>
+            </TouchableOpacity>
+          )}
+          {showChatButton && (
+            <TouchableOpacity
+              style={styles.chatButton}
+              onPress={chatPressHandler}
+            >
+              <Text style={styles.chatButtonText}>Chat with Seller</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -133,5 +210,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#FFFFFF",
     marginBottom: 10,
+  },
+  deleteButton: {
+    backgroundColor: "#FF0000",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  deleteButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  chatButton: {
+    backgroundColor: "#1E90FF",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  chatButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
