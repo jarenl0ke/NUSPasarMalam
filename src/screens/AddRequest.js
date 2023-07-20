@@ -8,10 +8,14 @@ import {
   Text,
   View,
   TextInput,
+  Alert,
   StyleSheet,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import ModalDropdown from "react-native-modal-dropdown";
+import firebase from "../../database/Firebase";
+import "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import Categories from "../../constants/Categories";
 
@@ -20,9 +24,11 @@ const AddRequest = ({ navigation }) => {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
     validateForm();
+    fetchUserId();
   }, [requestTitle, category, description]);
 
   const validateForm = () => {
@@ -31,6 +37,17 @@ const AddRequest = ({ navigation }) => {
       category.trim() !== "" &&
       description.trim() !== "";
     setIsButtonDisabled(!isValid);
+  };
+
+  const fetchUserId = async () => {
+    try {
+      const user = firebase.auth.currentUser;
+      if (user) {
+        setUserId(user.uid);
+      }
+    } catch (error) {
+      console.error("Error fetching user ID:", error);
+    }
   };
 
   const handleGoBack = () => {
@@ -61,8 +78,36 @@ const AddRequest = ({ navigation }) => {
     setDescription(text);
   };
 
-  const requestItHandler = () => {
-    return;
+  const requestItHandler = async () => {
+    try {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        const userId = user.uid;
+        const requestData = {
+          requestTitle,
+          category,
+          description,
+          userID: userId,
+          listingDateTime: new Date().toISOString(),
+        };
+
+        const RequestRef = await firebase
+          .firestore()
+          .collection("Requests")
+          .add(requestData);
+
+        setRequestTitle("");
+        setCategory("");
+        setDescription("");
+
+        Alert.alert("Item requested successfully!");
+        navigation.navigate("Home");
+      } else {
+        Alert.alert("User not found. Please log in again.");
+      }
+    } catch (error) {
+      console.error("Error requesting item:", error);
+    }
   };
 
   return (
