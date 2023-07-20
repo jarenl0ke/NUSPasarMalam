@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TouchableWithoutFeedback,
   Keyboard,
@@ -21,6 +21,18 @@ const AddRequest = ({ navigation }) => {
   const [description, setDescription] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
+  useEffect(() => {
+    validateForm();
+  }, [requestTitle, category, description]);
+
+  const validateForm = () => {
+    const isValid =
+      requestTitle.trim() !== "" &&
+      category.trim() !== "" &&
+      description.trim() !== "";
+    setIsButtonDisabled(!isValid);
+  };
+
   const handleGoBack = () => {
     navigation.goBack();
   };
@@ -29,7 +41,7 @@ const AddRequest = ({ navigation }) => {
     setRequestTitle(text);
   };
 
-  const selectCategoryHandler = (category) => {
+  const selectCategoryHandler = (index, category) => {
     setCategory(category);
   };
 
