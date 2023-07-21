@@ -134,7 +134,7 @@ const Home = () => {
             source={require("../../assets/Images/sell.png")}
             style={styles.bottomBarIcon}
           />
-          <Text style={styles.bottomBarText}>Create Request</Text>
+          <Text style={styles.bottomBarText}>New Listing</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomBarItem} onPress={handleSettings}>
           <Image
