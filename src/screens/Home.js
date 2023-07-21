@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -8,9 +8,13 @@ import {
   Text,
   SafeAreaView,
   FlatList,
+  ImageBackground,
+  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import firebase from "../../database/Firebase";
+import "firebase/auth";
 
 const categories = [
   {
@@ -73,6 +77,7 @@ const categories = [
 
 const Home = () => {
   const navigation = useNavigation();
+  const [latestListings, setLatestListings] = useState([]);
 
   // Dummy to handle search functionality
   const handleSearch = (text) => {
@@ -84,7 +89,9 @@ const Home = () => {
   };
 
   const handleCategoryPress = (category) => {
-    navigation.navigate("AllListings", { selectedCategory: category.categoryName });
+    navigation.navigate("AllListings", {
+      selectedCategory: category.categoryName,
+    });
   };
 
   const renderCategoryItem = ({ item }) => {
@@ -111,8 +118,80 @@ const Home = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.categoriesContainer}
         columnWrapperStyle={styles.categoryColumnWrapper}
+        style={{ marginTop: -25 }}
       />
     );
+  };
+
+  const renderCarouselItem = ({ item }) => {
+    const windowWidth = Dimensions.get("window").width;
+    const itemWidth = (windowWidth - 80) / 2.5;
+    const imageHeight = itemWidth * 1.2;
+
+    return (
+      <TouchableOpacity
+        style={[
+          styles.carouselItemContainer,
+          { width: itemWidth, height: imageHeight },
+        ]}
+      >
+        <ImageBackground
+          source={{ uri: item.imageUrls[0] }}
+          style={styles.carouselItemImage}
+          imageStyle={{ ...styles.carouselItemImage, resizeMode: "cover" }}
+        >
+          {/* Background overlay */}
+          <View style={styles.textContainer}>
+            <View style={styles.textBackground}>
+              <Text
+                style={styles.carouselItemTitle}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                {item.listingTitle}
+              </Text>
+              <Text
+                style={styles.carouselItemPrice}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                ${item.price}
+              </Text>
+            </View>
+          </View>
+        </ImageBackground>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderLatestListings = () => {
+    return (
+      <View style={styles.latestListingsContainer}>
+        <View style={styles.latestListingsHeaderContainer}>
+          <Text style={styles.latestListingsHeader}>Latest Listings</Text>
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={handleViewAllListings}
+          >
+            <Text style={styles.viewAllButtonText}>View all</Text>
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          data={latestListings}
+          renderItem={renderCarouselItem}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.carouselContainer}
+        />
+      </View>
+    );
+  };
+
+  const handleViewAllListings = () => {
+    navigation.navigate("AllListings", {
+      selectedCategory: "All Categories",
+    });
   };
 
   const renderBottomBar = () => {
@@ -161,6 +240,33 @@ const Home = () => {
     );
   };
 
+  useEffect(() => {
+    const fetchLatestListings = async () => {
+      try {
+        const listingsRef = firebase.firestore().collection("Listings");
+        const currentUserID = firebase.auth().currentUser.uid;
+
+        // Get the latest listings posted by other users (excluding the current user's latest listing)
+        const otherUsersListingSnapshot = await listingsRef
+          .where("userID", "!=", currentUserID)
+          .orderBy("userID", "asc")
+          .orderBy("listingDateTime", "desc")
+          .limit(6) // Increase the limit to 6 to include the latest 5 listings from other users
+          .get();
+
+        const otherUsersListingData = otherUsersListingSnapshot.docs
+          .map((doc) => doc.data())
+          .filter((listing) => listing.userID !== currentUserID);
+
+        setLatestListings(otherUsersListingData);
+      } catch (error) {
+        console.error("Error fetching latest listings:", error);
+      }
+    };
+
+    fetchLatestListings();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.searchBarContainer}>
@@ -174,13 +280,22 @@ const Home = () => {
           <Ionicons name="chatbubbles" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
+      <Text style={styles.headerText}>What are you looking for today?</Text>
       {renderCategories()}
+      {renderLatestListings()}
       {renderBottomBar()}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  headerText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "left",
+  },
   container: {
     flex: 1,
     backgroundColor: "#121212",
@@ -261,6 +376,70 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 12,
     marginTop: 5,
+  },
+  latestListingsContainer: {
+    marginTop: -10,
+    marginBottom: 250,
+  },
+  latestListingsHeader: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "left",
+    marginBottom: 10,
+  },
+  carouselContainer: {
+    paddingHorizontal: 10,
+  },
+  carouselItemContainer: {
+    borderRadius: 10,
+    overflow: "hidden",
+    marginRight: 10,
+    justifyContent: "center",
+  },
+  carouselItemImage: {
+    width: "100%",
+    height: 160,
+    justifyContent: "flex-end",
+  },
+  carouselItemTitle: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginVertical: 1,
+  },
+  carouselItemPrice: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    marginVertical: 4,
+  },
+  latestListingsHeaderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  viewAllButton: {
+    backgroundColor: "#3b3b3b",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  viewAllButtonText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  textContainer: {
+    flexDirection: "row", // Display text items horizontally
+    justifyContent: "flex-start", // Align text items to the left
+    width: "100%", // Fill the width of the image container
+  },
+  textBackground: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Background overlay color (adjust opacity as needed)
+    padding: 5,
+    flex: 1,
+    borderRadius: 10,
   },
 });
 
