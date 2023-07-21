@@ -134,6 +134,7 @@ const Home = () => {
           styles.carouselItemContainer,
           { width: itemWidth, height: imageHeight },
         ]}
+        onPress={() => handleListingPress(item)} 
       >
         <ImageBackground
           source={{ uri: item.imageUrls[0] }}
@@ -192,6 +193,10 @@ const Home = () => {
     navigation.navigate("AllListings", {
       selectedCategory: "All Categories",
     });
+  };
+
+  const handleListingPress = (listing) => {
+    navigation.navigate("Listing", { listing });
   };
 
   const renderBottomBar = () => {
@@ -304,6 +309,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 20,
   },
+
   searchBarContainer: {
     marginBottom: 20,
     flexDirection: "row",
@@ -387,9 +393,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "left",
     marginBottom: 10,
-  },
-  carouselContainer: {
-    paddingHorizontal: 10,
   },
   carouselItemContainer: {
     borderRadius: 10,
