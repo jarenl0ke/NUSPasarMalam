@@ -3,116 +3,116 @@ import {
   StyleSheet,
   View,
   TextInput,
-  ScrollView,
   TouchableOpacity,
   Image,
   Text,
   SafeAreaView,
+  FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-const Home = ({ navigation }) => {
+const categories = [
+  {
+    id: "1",
+    title: "Books & Magazines",
+    categoryName: "Books & Magazines",
+    icon: require("../../assets/Images/books.png"),
+    backgroundColor: "#ff7f50", // Coral color
+  },
+  {
+    id: "2",
+    title: "Clothing",
+    categoryName: "Clothing & Accessories",
+    icon: require("../../assets/Images/shirt.png"),
+    backgroundColor: "#6495ed", // Cornflower blue color
+  },
+  {
+    id: "3",
+    title: "Electronic",
+    categoryName: "Electronics",
+    icon: require("../../assets/Images/phone.png"),
+    backgroundColor: "#20b2aa", // Light sea green color
+  },
+  {
+    id: "4",
+    title: "Health",
+    categoryName: "Health",
+    icon: require("../../assets/Images/pill.png"),
+    backgroundColor: "#9370db", // Medium purple color
+  },
+  {
+    id: "5",
+    title: "Home & Kitchen",
+    categoryName: "Home & Kitchen",
+    icon: require("../../assets/Images/home.png"),
+    backgroundColor: "#f08080", // Light coral color
+  },
+  {
+    id: "6",
+    title: "Food & Beverages",
+    categoryName: "Food & Beverages",
+    icon: require("../../assets/Images/food.png"),
+    backgroundColor: "#ffa500", // Orange color
+  },
+  {
+    id: "7",
+    title: "Furniture",
+    categoryName: "Furniture",
+    icon: require("../../assets/Images/couch.png"),
+    backgroundColor: "#00ced1", // Dark turquoise color
+  },
+  {
+    id: "8",
+    title: "View All",
+    categoryName: "All Categories",
+    icon: require("../../assets/Images/view.png"),
+    backgroundColor: "#87ceeb", // Sky blue color
+  },
+];
+
+const Home = () => {
+  const navigation = useNavigation();
+
   // Dummy to handle search functionality
   const handleSearch = (text) => {
     console.log("Searching for:", text);
   };
 
-  const viewListingsHandler = () => {
-    navigation.navigate("AllListings");
+  const handleChatPress = () => {
+    navigation.navigate("MyChats");
   };
 
-  const viewRequestsHandler = () => {
-    navigation.navigate("AllRequests");
+  const handleCategoryPress = (category) => {
+    navigation.navigate("AllListings", { selectedCategory: category.categoryName });
   };
 
-  const renderCarouselItems = (
-    header,
-    placeholderImage,
-    placeholderPrice,
-    placeholderPosted,
-    type
-  ) => {
-    // Example data for carousel items
-    const items = [
-      {
-        id: 1,
-        image: placeholderImage,
-        price: placeholderPrice,
-        posted: placeholderPosted,
-      },
-      {
-        id: 2,
-        image: placeholderImage,
-        price: placeholderPrice,
-        posted: placeholderPosted,
-      },
-      {
-        id: 3,
-        image: placeholderImage,
-        price: placeholderPrice,
-        posted: placeholderPosted,
-      },
-      {
-        id: 4,
-        image: placeholderImage,
-        price: placeholderPrice,
-        posted: placeholderPosted,
-      },
-      {
-        id: 5,
-        image: placeholderImage,
-        price: placeholderPrice,
-        posted: placeholderPosted,
-      },
-      {
-        id: 6,
-        image: placeholderImage,
-        price: placeholderPrice,
-        posted: placeholderPosted,
-      },
-      {
-        id: 7,
-        image: placeholderImage,
-        price: placeholderPrice,
-        posted: placeholderPosted,
-      },
-      {
-        id: 8,
-        image: placeholderImage,
-        price: placeholderPrice,
-        posted: placeholderPosted,
-      },
-    ];
-
+  const renderCategoryItem = ({ item }) => {
     return (
-      <View style={styles.carouselContainer}>
-        <Text style={styles.carouselHeader}>{header}</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {items.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.carouselItem}>
-              <Image source={item.image} style={styles.carouselItemImage} />
-              <Text style={styles.carouselItemPrice}>${item.price}</Text>
-              <Text style={styles.carouselItemPosted}>
-                Posted {item.posted} ago
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-        <TouchableOpacity
-          style={styles.viewAllButton}
-          onPress={
-            type === "listings" ? viewListingsHandler : viewRequestsHandler
-          }
-        >
-          <Text style={styles.viewAllButtonText}>View All</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        style={[
+          styles.categoryItemContainer,
+          { backgroundColor: item.backgroundColor },
+        ]}
+        onPress={() => handleCategoryPress(item)}
+      >
+        <Image source={item.icon} style={styles.categoryIcon} />
+        <Text style={styles.categoryTitle}>{item.title}</Text>
+      </TouchableOpacity>
     );
   };
 
-  const handleChatPress = () => {
-    navigation.navigate("MyChats");
+  const renderCategories = () => {
+    return (
+      <FlatList
+        data={categories}
+        numColumns={4}
+        renderItem={renderCategoryItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.categoriesContainer}
+        columnWrapperStyle={styles.categoryColumnWrapper}
+      />
+    );
   };
 
   const renderBottomBar = () => {
@@ -135,20 +135,10 @@ const Home = ({ navigation }) => {
           onPress={handleAddListing}
         >
           <Image
-            source={require("../../assets/Images/buy.png")}
-            style={styles.bottomBarIcon}
-          />
-          <Text style={styles.bottomBarText}>Create Listing</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.bottomBarItem}
-          onPress={handleAddRequest}
-        >
-          <Image
             source={require("../../assets/Images/sell.png")}
             style={styles.bottomBarIcon}
           />
-          <Text style={styles.bottomBarText}>Create Request</Text>
+          <Text style={styles.bottomBarText}>New Listing</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomBarItem} onPress={handleSettings}>
           <Image
@@ -174,25 +164,12 @@ const Home = ({ navigation }) => {
           <Ionicons name="chatbubbles" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
-      {renderCarouselItems(
-        "Hot Listings:",
-        require("../../assets/Images/aircon.jpeg"),
-        "10",
-        "2 days",
-        "listings"
-      )}
-      <View style={styles.gap} />
-      {renderCarouselItems(
-        "Hot Requests:",
-        require("../../assets/Images/lipstick.jpeg"),
-        "20",
-        "1 day",
-        "requests"
-      )}
+      {renderCategories()}
       {renderBottomBar()}
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -222,48 +199,32 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     padding: 10,
   },
-  carouselContainer: {
-    marginBottom: 20,
+  categoriesContainer: {
+    paddingTop: 20,
+    paddingBottom: 20,
   },
-  carouselHeader: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#FFFFFF",
+  categoryColumnWrapper: {
+    justifyContent: "space-between",
+  },
+  categoryItemContainer: {
+    flex: 1,
+    alignItems: "center",
     marginBottom: 10,
-  },
-  carouselItem: {
-    backgroundColor: "#CCCCCC",
-    padding: 10,
-    marginRight: 10,
     borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    marginHorizontal: 3,
   },
-  carouselItemImage: {
-    width: 150,
-    height: 150,
-    marginBottom: 10,
+  categoryIcon: {
+    width: 32,
+    height: 32,
+    marginBottom: 8,
+    tintColor: "#FFFFFF",
   },
-  carouselItemPrice: {
-    color: "#000000",
-    fontSize: 16,
-  },
-  carouselItemPosted: {
-    color: "#000000",
-    fontSize: 14,
-  },
-  viewAllButton: {
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  viewAllButtonText: {
+  categoryTitle: {
     color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 12,
     textAlign: "center",
-  },
-  gap: {
-    height: 20,
   },
   bottomBar: {
     flexDirection: "row",
@@ -271,7 +232,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#1E1E1E",
     paddingVertical: 10,
-    width: "100%",
+    paddingHorizontal: 20,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   bottomBarItem: {
     flex: 1,
