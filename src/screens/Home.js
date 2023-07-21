@@ -140,6 +140,16 @@ const Home = () => {
           />
           <Text style={styles.bottomBarText}>New Listing</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.bottomBarItem}
+          onPress={handleAddRequest}
+        >
+          <Image
+            source={require("../../assets/Images/buy.png")}
+            style={styles.bottomBarIcon}
+          />
+          <Text style={styles.bottomBarText}>New Request</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.bottomBarItem} onPress={handleSettings}>
           <Image
             source={require("../../assets/Images/settings.png")}
