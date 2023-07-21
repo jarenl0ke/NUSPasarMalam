@@ -9,12 +9,12 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from "react-native";
-import firebase from "../../database/Firebase";
+import firebase from "../../../database/Firebase";
 import "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native"; 
 
-import Categories from "../../constants/Categories";
+import Categories from "../../../constants/Categories";
 
 const sortOptions = [
   { key: "dateLatestToOldest", label: "Date Listed: Newest to Oldest" },

@@ -14,11 +14,11 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import firebase from "../../database/Firebase";
+import firebase from "../../../database/Firebase";
 import "firebase/auth";
 import "firebase/firestore";
 
-const Chat = () => {
+const SellerChat = () => {
   const route = useRoute();
   const { listing, imageUrl } = route.params;
   const [messages, setMessages] = useState([]);
@@ -34,7 +34,7 @@ const Chat = () => {
       .firestore()
       .collection("Chats")
       .where("listingID", "==", listing.id)
-      .where("buyerID", "==", currentUserID)
+      .where("sellerID", "==", currentUserID) // Use sellerID as the current user
       .onSnapshot((snapshot) => {
         if (!snapshot.empty) {
           const chatDoc = snapshot.docs[0];
@@ -68,9 +68,9 @@ const Chat = () => {
   const createChat = async () => {
     try {
       const chatRef = await firebase.firestore().collection("Chats").add({
-        sellerID: listing.userID,
+        sellerID: currentUserID, // Use sellerID as the current user
         listingID: listing.id,
-        buyerID: currentUserID,
+        buyerID: listing.userID, // Swap sellerID and buyerID
       });
 
       const newChatID = chatRef.id; // Get the newly created chat ID
@@ -114,7 +114,8 @@ const Chat = () => {
     scrollViewRef.current.scrollToEnd({ animated: true });
   };
 
-  const listingTitle = listing.listingTitle || (listing.data && listing.data().listingTitle);
+  const listingTitle =
+    listing.listingTitle || (listing.data && listing.data().listingTitle);
   const listingPrice = listing.price || (listing.data && listing.data().price);
 
   return (
@@ -141,8 +142,8 @@ const Chat = () => {
             key={index}
             style={[
               styles.messageContainer,
-              message.sender === firebase.auth().currentUser.uid
-                ? styles.currentUserMessageContainer
+              message.sender === currentUserID
+                ? styles.currentUserMessageContainer // Use currentUserID as the sender
                 : styles.otherUserMessageContainer,
             ]}
           >
@@ -255,4 +256,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Chat;
+export default SellerChat;

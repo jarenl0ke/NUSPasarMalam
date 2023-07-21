@@ -120,6 +120,10 @@ const Home = () => {
       navigation.navigate("AddListing");
     };
 
+    const handleAddRequest = () => {
+      navigation.navigate("AddRequest");
+    };
+
     const handleSettings = () => {
       navigation.navigate("Settings");
     };

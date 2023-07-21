@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import firebase from "../../database/Firebase";
+import firebase from "../../../database/Firebase";
 import "firebase/auth";
 import "firebase/firestore";
 
@@ -98,7 +98,7 @@ const Listing = () => {
         .where("buyerID", "==", currentUserID)
         .where("sellerID", "==", listing.userID)
         .get();
-  
+
       if (!snapshot.empty) {
         // Chat already exists, navigate to the existing chat room
         const chatDoc = snapshot.docs[0];
@@ -112,7 +112,7 @@ const Listing = () => {
           listingID: listing.id,
           buyerID: currentUserID,
         });
-  
+
         const newChatID = chatRef.id;
         const imageUrl = listing.imageUrls[0];
         navigation.navigate("Chat", { chatID: newChatID, listing, imageUrl });
@@ -121,7 +121,6 @@ const Listing = () => {
       console.error("Error checking/changing chat status:", error);
     }
   };
-  
 
   const fetchSellerFullName = async () => {
     try {
