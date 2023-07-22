@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   requestDetailsContainer: {
-    marginTop: 25,
+    marginTop: 50,
     padding: 10,
     backgroundColor: "#1E1E1E",
     borderRadius: 5,

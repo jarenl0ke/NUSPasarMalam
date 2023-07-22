@@ -250,6 +250,7 @@ const Home = () => {
     );
   };
 
+
   const getTimeElapsed = (timestamp) => {
     const now = new Date();
     const listingDateTime = new Date(timestamp);
@@ -276,8 +277,9 @@ const Home = () => {
 
   const handleRequestPress = (request) => {
     // Handle request item press (navigate to RequestDetails, etc.)
-    console.log("Request Pressed:", request);
+    navigation.navigate("Request", { request });
   };
+
 
   const renderBottomBar = () => {
     const handleAddListing = () => {
