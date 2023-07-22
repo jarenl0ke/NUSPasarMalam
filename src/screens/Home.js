@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -8,12 +8,18 @@ import {
   Text,
   SafeAreaView,
   FlatList,
+  ImageBackground,
+  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import firebase from "../../database/Firebase";
+import "firebase/auth";
 
 const Home = () => {
   const navigation = useNavigation();
+  const [latestListings, setLatestListings] = useState([]);
+  const [latestRequests, setLatestRequests] = useState([]);
 
   // Dummy to handle search functionality
   const handleSearch = (text) => {
@@ -54,9 +60,167 @@ const Home = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.categoriesContainer}
         columnWrapperStyle={styles.categoryColumnWrapper}
+        style={{ marginTop: -25 }}
       />
     );
   };
+
+  const renderCarouselItem = ({ item }) => {
+    const windowWidth = Dimensions.get("window").width;
+    const itemWidth = (windowWidth - 80) / 2.5;
+    const imageHeight = itemWidth * 1.2;
+
+    return (
+      <TouchableOpacity
+        style={[
+          styles.carouselItemContainer,
+          { width: itemWidth, height: imageHeight },
+        ]}
+        onPress={() => handleListingPress(item)} 
+      >
+        <ImageBackground
+          source={{ uri: item.imageUrls[0] }}
+          style={styles.carouselItemImage}
+          imageStyle={{ ...styles.carouselItemImage, resizeMode: "cover" }}
+        >
+          {/* Background overlay */}
+          <View style={styles.textContainer}>
+            <View style={styles.textBackground}>
+              <Text
+                style={styles.carouselItemTitle}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                {item.listingTitle}
+              </Text>
+              <Text
+                style={styles.carouselItemPrice}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                ${item.price}
+              </Text>
+            </View>
+          </View>
+        </ImageBackground>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderLatestListings = () => {
+    return (
+      <View style={styles.latestListingsContainer}>
+        <View style={styles.latestListingsHeaderContainer}>
+          <Text style={styles.latestListingsHeader}>Latest Listings</Text>
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={handleViewAllListings}
+          >
+            <Text style={styles.viewAllButtonText}>View all</Text>
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          data={latestListings}
+          renderItem={renderCarouselItem}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.carouselContainer}
+        />
+      </View>
+    );
+  };
+
+  const handleViewAllListings = () => {
+    navigation.navigate("AllListings", {
+      selectedCategory: "All Categories",
+    });
+  };
+
+  const handleListingPress = (listing) => {
+    navigation.navigate("Listing", { listing });
+  };
+
+  const renderLatestRequests = () => {
+    return (
+      <View style={styles.latestRequestsContainer}>
+        <View style={styles.latestListingsHeaderContainer}>
+          <Text style={styles.latestListingsHeader}>Latest Requests</Text>
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={handleViewAllRequests}
+          >
+            <Text style={styles.viewAllButtonText}>View all</Text>
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          data={latestRequests}
+          renderItem={renderRequestCarouselItem}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.carouselContainer}
+        />
+      </View>
+    );
+  };
+
+  const renderRequestCarouselItem = ({ item }) => {
+    // Calculate time elapsed since the request was posted
+    const timeElapsed = getTimeElapsed(item.listingDateTime);
+  
+    // Calculate the item width and image height based on window width
+    const windowWidth = Dimensions.get("window").width;
+    const itemWidth = (windowWidth - 80) / 2.5; // Adjust the values (80 and 2.5) as needed for the desired layout
+    const imageHeight = itemWidth * 0.5; // Adjust the value (1.2) as needed for the desired image aspect ratio
+  
+    return (
+      <TouchableOpacity
+        style={[
+          styles.carouselItemContainer,
+          { width: itemWidth, height: imageHeight },
+        ]}
+        onPress={() => handleRequestPress(item)} // Handle request item press
+      >
+        {/* Render the request title and time elapsed */}
+        <View style={styles.requestInfoContainer}>
+          <Text style={styles.requestTitle}>{item.requestTitle}</Text>
+          <Text style={styles.timeElapsedText}>{timeElapsed}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+
+  const getTimeElapsed = (timestamp) => {
+    const now = new Date();
+    const listingDateTime = new Date(timestamp);
+  
+    const timeDifferenceInSeconds = Math.floor((now - listingDateTime) / 1000);
+  
+    if (timeDifferenceInSeconds < 60) {
+      return `${timeDifferenceInSeconds} seconds ago`;
+    } else if (timeDifferenceInSeconds < 3600) {
+      const minutes = Math.floor(timeDifferenceInSeconds / 60);
+      return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
+    } else if (timeDifferenceInSeconds < 86400) {
+      const hours = Math.floor(timeDifferenceInSeconds / 3600);
+      return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+    } else {
+      const days = Math.floor(timeDifferenceInSeconds / 86400);
+      return `${days} ${days === 1 ? "day" : "days"} ago`;
+    }
+  };
+
+  const handleViewAllRequests = () => {
+    navigation.navigate("AllRequests");
+  };
+
+  const handleRequestPress = (request) => {
+    // Handle request item press (navigate to RequestDetails, etc.)
+    navigation.navigate("Request", { request });
+  };
+
 
   const renderBottomBar = () => {
     const handleAddListing = () => {
@@ -83,6 +247,16 @@ const Home = () => {
           />
           <Text style={styles.bottomBarText}>New Listing</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.bottomBarItem}
+          onPress={handleAddRequest}
+        >
+          <Image
+            source={require("../../assets/Images/buy.png")}
+            style={styles.bottomBarIcon}
+          />
+          <Text style={styles.bottomBarText}>New Request</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.bottomBarItem} onPress={handleSettings}>
           <Image
             source={require("../../assets/Images/settings.png")}
@@ -93,6 +267,58 @@ const Home = () => {
       </SafeAreaView>
     );
   };
+
+  useEffect(() => {
+    const fetchLatestListings = async () => {
+      try {
+        const listingsRef = firebase.firestore().collection("Listings");
+        const currentUserID = firebase.auth().currentUser.uid;
+
+        // Get the latest listings posted by other users (excluding the current user's latest listing)
+        const otherUsersListingSnapshot = await listingsRef
+          .where("userID", "!=", currentUserID)
+          .orderBy("userID", "asc")
+          .orderBy("listingDateTime", "desc")
+          .limit(6) // Increase the limit to 6 to include the latest 5 listings from other users
+          .get();
+
+        const otherUsersListingData = otherUsersListingSnapshot.docs
+          .map((doc) => doc.data())
+          .filter((listing) => listing.userID !== currentUserID);
+
+        setLatestListings(otherUsersListingData);
+        
+      } catch (error) {
+        console.error("Error fetching latest listings:", error);
+      }
+    };
+
+    const fetchLatestRequests = async () => {
+      try {
+        const requestsRef = firebase.firestore().collection("Requests");
+        const currentUserID = firebase.auth().currentUser.uid;
+  
+        // Get the latest requests posted by other users (excluding the current user's latest request)
+        const otherUsersRequestsSnapshot = await requestsRef
+          .where("userID", "!=", currentUserID)
+          .orderBy("userID", "asc")
+          .orderBy("listingDateTime", "desc")
+          .limit(6)
+          .get();
+  
+        const otherUsersRequestsData = otherUsersRequestsSnapshot.docs
+          .map((doc) => doc.data())
+          .filter((request) => request.userID !== currentUserID);
+  
+        setLatestRequests(otherUsersRequestsData);
+      } catch (error) {
+        console.error("Error fetching latest requests:", error);
+      }
+    };
+
+    fetchLatestListings();
+    fetchLatestRequests();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -107,7 +333,10 @@ const Home = () => {
           <Ionicons name="chatbubbles" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
+      <Text style={styles.headerText}>What are you looking for today?</Text>
       {renderCategories()}
+      {renderLatestListings()}
+      {renderLatestRequests()}
       {renderBottomBar()}
     </View>
   );
@@ -175,6 +404,13 @@ const categories = [
 ];
 
 const styles = StyleSheet.create({
+  headerText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "left",
+  },
   container: {
     flex: 1,
     backgroundColor: "#121212",
@@ -183,6 +419,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 20,
   },
+
   searchBarContainer: {
     marginBottom: 20,
     flexDirection: "row",
@@ -255,5 +492,98 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 12,
     marginTop: 5,
+  },
+  latestListingsContainer: {
+    marginTop: 0,
+    marginBottom: 150,
+  },
+  latestRequestsContainer: {
+    marginTop: -100,
+    marginBottom: 120,
+  },
+  latestListingsHeader: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "left",
+  },
+  carouselItemContainer: {
+    borderRadius: 10,
+    overflow: "hidden",
+    marginRight: 10,
+    justifyContent: "center",
+  },
+  carouselItemImage: {
+    width: "100%",
+    height: 160,
+    justifyContent: "flex-end",
+  },
+  carouselItemTitle: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginVertical: 1,
+  },
+  carouselItemPrice: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    marginVertical: 4,
+  },
+  latestListingsHeaderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  viewAllButton: {
+    backgroundColor: "#3b3b3b",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  viewAllButtonText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  textContainer: {
+    flexDirection: "row", // Display text items horizontally
+    justifyContent: "flex-start", // Align text items to the left
+    width: "100%", // Fill the width of the image container
+  },
+  textBackground: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Background overlay color (adjust opacity as needed)
+    padding: 5,
+    flex: 1,
+    borderRadius: 10,
+  },
+  requestCarouselItemContainer: {
+    backgroundColor: "#2c2c2c", // Adjust as needed
+  },
+  requestInfoContainer: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Background overlay color (adjust opacity as needed)
+    borderRadius: 10,
+  },
+  requestTitle: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  timeElapsedText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+  },
+
+  // Adjusted size for the "View all" button for requests
+  viewAllButton: {
+    backgroundColor: "#3b3b3b",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    alignSelf: "flex-start", // Align the button to the left
   },
 });
