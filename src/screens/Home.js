@@ -53,15 +53,38 @@ const Home = () => {
 
   const renderCategories = () => {
     return (
-      <FlatList
-        data={categories}
-        numColumns={4}
-        renderItem={renderCategoryItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.categoriesContainer}
-        columnWrapperStyle={styles.categoryColumnWrapper}
-        style={{ marginTop: -25 }}
-      />
+      <View style={styles.categoriesContainer}>
+        <View style={styles.row}>
+          {categories.slice(0, 4).map((category) => (
+            <TouchableOpacity
+              key={category.id}
+              style={[
+                styles.categoryItemContainer,
+                { backgroundColor: category.backgroundColor },
+              ]}
+              onPress={() => handleCategoryPress(category)}
+            >
+              <Image source={category.icon} style={styles.categoryIcon} />
+              <Text style={styles.categoryTitle}>{category.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <View style={styles.row}>
+          {categories.slice(4).map((category) => (
+            <TouchableOpacity
+              key={category.id}
+              style={[
+                styles.categoryItemContainer,
+                { backgroundColor: category.backgroundColor },
+              ]}
+              onPress={() => handleCategoryPress(category)}
+            >
+              <Image source={category.icon} style={styles.categoryIcon} />
+              <Text style={styles.categoryTitle}>{category.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
     );
   };
 
@@ -442,8 +465,14 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   categoriesContainer: {
-    paddingTop: 20,
-    paddingBottom: 20,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 0,
   },
   categoryColumnWrapper: {
     justifyContent: "space-between",
@@ -495,12 +524,12 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   latestListingsContainer: {
-    marginTop: 0,
+    marginTop: 25,
     marginBottom: 150,
   },
   latestRequestsContainer: {
     marginTop: -100,
-    marginBottom: 120,
+    marginBottom: 100,
   },
   latestListingsHeader: {
     color: "#FFFFFF",
