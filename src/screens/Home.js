@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
-  TextInput,
   TouchableOpacity,
   Image,
   Text,
@@ -16,15 +15,14 @@ import { useNavigation } from "@react-navigation/native";
 import firebase from "../../database/Firebase";
 import "firebase/auth";
 
+import LatestListings from "../../components/homepage/LatestListings";
+
+import ViewAllButton from "../../components/ui/ViewAllButton";
+
 const Home = () => {
   const navigation = useNavigation();
   const [latestListings, setLatestListings] = useState([]);
   const [latestRequests, setLatestRequests] = useState([]);
-
-  const handleSearchBarPress = () => {
-    // Navigate to the Search.js screen
-    navigation.navigate("Search");
-  };
 
   const handleChatPress = () => {
     navigation.navigate("MyChats");
@@ -135,12 +133,7 @@ const Home = () => {
       <View style={styles.latestListingsContainer}>
         <View style={styles.latestListingsHeaderContainer}>
           <Text style={styles.latestListingsHeader}>Latest Listings</Text>
-          <TouchableOpacity
-            style={styles.viewAllButton}
-            onPress={handleViewAllListings}
-          >
-            <Text style={styles.viewAllButtonText}>View all</Text>
-          </TouchableOpacity>
+          <ViewAllButton onPress={handleViewAllListings} />
         </View>
         <FlatList
           data={latestListings}
@@ -169,12 +162,7 @@ const Home = () => {
       <View style={styles.latestRequestsContainer}>
         <View style={styles.latestListingsHeaderContainer}>
           <Text style={styles.latestListingsHeader}>Latest Requests</Text>
-          <TouchableOpacity
-            style={styles.viewAllButton}
-            onPress={handleViewAllRequests}
-          >
-            <Text style={styles.viewAllButtonText}>View all</Text>
-          </TouchableOpacity>
+          <ViewAllButton onPress={handleViewAllRequests} />
         </View>
         <FlatList
           data={latestRequests}
@@ -355,7 +343,11 @@ const Home = () => {
       </View>
       <Text style={styles.headerText}>What are you looking for today?</Text>
       {renderCategories()}
-      {renderLatestListings()}
+      <LatestListings
+        data={latestListings}
+        onPress={handleListingPress}
+        viewAll={handleViewAllListings}
+      />
       {renderLatestRequests()}
       {renderBottomBar()}
     </View>
@@ -580,36 +572,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  viewAllButton: {
-    backgroundColor: "#3b3b3b",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  viewAllButtonText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "bold",
-  },
   textContainer: {
     flexDirection: "row",
-    justifyContent: "flex-start", 
-    width: "100%", 
+    justifyContent: "flex-start",
+    width: "100%",
   },
   textBackground: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)", 
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     padding: 5,
     flex: 1,
     borderRadius: 10,
   },
   requestCarouselItemContainer: {
-    backgroundColor: "#2c2c2c", 
+    backgroundColor: "#2c2c2c",
   },
   requestInfoContainer: {
     flex: 1,
     justifyContent: "center",
     padding: 10,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", 
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     borderRadius: 10,
   },
   requestTitle: {
@@ -630,6 +611,6 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   iconSpacing: {
-    width: 10, 
+    width: 10,
   },
 });
