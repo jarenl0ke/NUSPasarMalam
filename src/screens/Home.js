@@ -161,7 +161,6 @@ const Home = () => {
   };
 
   const handleListingPress = (listing) => {
-    console.log(listing.id);
     navigation.navigate("Listing", { listing });
   };
 
