@@ -103,6 +103,33 @@ const Request = () => {
     setIsPopupVisible((prevState) => !prevState);
   };
 
+  const handleDeleteRequest = () => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this request?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: deleteRequestHandler },
+      ]
+    );
+  };
+
+  const deleteRequestHandler = async () => {
+    try {
+      // Delete the request from the Firestore collection
+      await firebase
+        .firestore()
+        .collection("Requests")
+        .doc(request.id)
+        .delete();
+      // Navigate back to the previous screen after successful deletion
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error deleting request:", error);
+      Alert.alert("Error", "An error occurred while deleting the request.");
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity style={styles.goBackButton} onPress={handleGoBack}>
@@ -128,7 +155,7 @@ const Request = () => {
           {showDeleteButton && (
             <TouchableOpacity
               style={styles.deleteButton}
-              onPress={deleteRequestHandler}
+              onPress={handleDeleteRequest}
             >
               <Text style={styles.deleteButtonText}>Delete Listing</Text>
             </TouchableOpacity>
