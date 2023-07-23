@@ -11,7 +11,6 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import firebase from "../../../database/Firebase";
 import "firebase/auth";
-
 import Categories from "../../../constants/Categories";
 
 const AllRequests = ({ navigation }) => {
@@ -21,6 +20,7 @@ const AllRequests = ({ navigation }) => {
 
   useEffect(() => {
     fetchRequests();
+    deleteOldRequests();
   }, [selectedCategory]);
 
   const fetchRequests = async () => {
@@ -44,6 +44,36 @@ const AllRequests = ({ navigation }) => {
       setRequests(requestsData);
     } catch (error) {
       console.error("Error fetching listings:", error);
+    }
+  };
+
+  const deleteOldRequests = async () => {
+    try {
+      const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
+      const requestsSnapshot = await firebase
+        .firestore()
+        .collection("Requests")
+        .get();
+
+      // Filter requests that are older than 3 days
+      const oldRequests = requestsSnapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .filter((listing) => new Date(listing.listingDateTime) < threeDaysAgo);
+
+      // Delete each old request from Firebase
+      oldRequests.forEach(async (request) => {
+        await firebase
+          .firestore()
+          .collection("Requests")
+          .doc(request.id)
+          .delete();
+        console.log(`Deleted request with ID: ${request.id}`);
+      });
+    } catch (error) {
+      console.error("Error deleting old requests:", error);
     }
   };
 
