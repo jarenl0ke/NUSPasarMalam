@@ -47,7 +47,26 @@ const MyChats = () => {
           sellerID: doc.data().sellerID,
         }));
 
-        setChats(chatList);
+        // Filter out the chats that do not have a "Messages" collection
+        const chatsWithMessages = await Promise.all(
+          chatList.map(async (chat) => {
+            const messageSnapshot = await firebase
+              .firestore()
+              .collection("Chats")
+              .doc(chat.id)
+              .collection("Messages")
+              .limit(1)
+              .get();
+
+            if (!messageSnapshot.empty) {
+              return chat;
+            }
+
+            return null;
+          })
+        );
+
+        setChats(chatsWithMessages.filter(Boolean));
       } catch (error) {
         console.error("Error fetching chats:", error);
       }
@@ -169,7 +188,7 @@ const MyChats = () => {
           .collection("Listings")
           .doc(listingID)
           .get();
-        
+
         if (listingSnapshot.exists) {
           if (imageUrl) {
             if (activeTab === "Selling") {
@@ -178,7 +197,10 @@ const MyChats = () => {
                 imageUrl,
               });
             } else {
-              navigation.navigate("Chat", { listing: listingSnapshot, imageUrl });
+              navigation.navigate("Chat", {
+                listing: listingSnapshot,
+                imageUrl,
+              });
             }
           } else {
             console.log("Listing image not available");
