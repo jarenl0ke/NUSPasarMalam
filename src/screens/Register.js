@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 const Register = ({ navigation }) => {
   // States
   const [fullName, setFullName] = useState("");
+  const [telegramHandle, setTelegramHandle] = useState(""); 
   const [age, setAge] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
@@ -95,6 +96,7 @@ const Register = ({ navigation }) => {
         const usersCollection = db.collection("users");
         const newUser = {
           fullName: fullName,
+          telegramHandle: telegramHandle,
           age: age,
           phoneNumber: phoneNumber,
           email: user.email,
@@ -139,6 +141,16 @@ const Register = ({ navigation }) => {
               placeholderTextColor="#777"
               value={fullName}
               onChangeText={setFullName}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Telegram Handle</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter Telegram handle"
+              placeholderTextColor="#777"
+              value={telegramHandle}
+              onChangeText={setTelegramHandle}
             />
           </View>
           <View style={styles.fieldContainer}>

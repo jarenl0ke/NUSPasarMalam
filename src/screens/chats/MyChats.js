@@ -169,7 +169,7 @@ const MyChats = () => {
           .collection("Listings")
           .doc(listingID)
           .get();
-
+        
         if (listingSnapshot.exists) {
           if (imageUrl) {
             if (activeTab === "Selling") {
@@ -178,7 +178,7 @@ const MyChats = () => {
                 imageUrl,
               });
             } else {
-              navigation.navigate("Chat", { listing: listingSnapshot });
+              navigation.navigate("Chat", { listing: listingSnapshot, imageUrl });
             }
           } else {
             console.log("Listing image not available");

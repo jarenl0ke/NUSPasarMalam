@@ -91,7 +91,6 @@ const Listing = () => {
 
   const handleChatPress = async () => {
     try {
-      console.log(listing.id)
 
       const snapshot = await firebase
         .firestore()
