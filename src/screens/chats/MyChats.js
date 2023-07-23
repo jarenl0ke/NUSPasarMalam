@@ -155,14 +155,13 @@ const MyChats = () => {
       return "";
     }
   };
-
   const handleChatPress = async (listingID) => {
     const chatListing = chatDetails.find(
       (chat) => chat.listingID === listingID
     );
 
     if (chatListing) {
-      const { buyerID, listingID, sellerID } = chatListing;
+      const { buyerID, listingID, sellerID, imageUrl } = chatListing;
 
       try {
         const listingSnapshot = await firebase
@@ -172,14 +171,18 @@ const MyChats = () => {
           .get();
 
         if (listingSnapshot.exists) {
-          const imageUrl = chatListing.imageUrl;
-          if (activeTab === "Selling") {
-            navigation.navigate("SellerChat", {
-              listing: listingSnapshot,
-              imageUrl,
-            });
+          if (imageUrl) {
+            if (activeTab === "Selling") {
+              navigation.navigate("SellerChat", {
+                listing: listingSnapshot,
+                imageUrl,
+              });
+            } else {
+              navigation.navigate("Chat", { listing: listingSnapshot });
+            }
           } else {
-            navigation.navigate("Chat", { listing: listingSnapshot, imageUrl });
+            console.log("Listing image not available");
+            // Handle the case when the image is not available, e.g., show a placeholder image
           }
         } else {
           console.log("Listing does not exist");
@@ -243,7 +246,11 @@ const MyChats = () => {
             >
               <View style={styles.chatContent}>
                 <Image
-                  source={{ uri: chat.imageUrl }}
+                  source={
+                    chat.imageUrl
+                      ? { uri: chat.imageUrl }
+                      : require("../../../assets/Images/settings.png")
+                  }
                   style={styles.listingImage}
                 />
                 <View style={styles.chatDetails}>

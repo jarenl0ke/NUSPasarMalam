@@ -20,15 +20,36 @@ import "firebase/firestore";
 
 const Chat = () => {
   const route = useRoute();
-  const { listing, imageUrl } = route.params;
+  const { listing } = route.params;
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const scrollViewRef = useRef(null);
   const navigation = useNavigation();
   const currentUserID = firebase.auth().currentUser.uid;
   const [chatID, setChatID] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
+    const fetchImageUrl = async () => {
+      try {
+        const imageSnapshot = await firebase
+          .firestore()
+          .collection("Listings")
+          .doc(listing.id) 
+          .get();
+
+        if (imageSnapshot.exists) {
+          const data = imageSnapshot.data();
+          setImageUrl(data.imageUrls[0])
+        }
+      } catch (error) {
+        console.error("Error fetching image URL:", error);
+      }
+    };
+
+    // Fetch the image URL for the listing
+    fetchImageUrl();
+
     let chatID = null;
     const unsubscribe = firebase
       .firestore()
