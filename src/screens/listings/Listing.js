@@ -91,6 +91,7 @@ const Listing = () => {
 
   const handleChatPress = async () => {
     try {
+
       const snapshot = await firebase
         .firestore()
         .collection("Chats")

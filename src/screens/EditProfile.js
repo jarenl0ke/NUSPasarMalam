@@ -18,6 +18,7 @@ const EditProfile = ({ navigation }) => {
   const [age, setAge] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [telegramHandle, setTelegramHandle] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   // Retrieve user information from Firebase
@@ -36,6 +37,7 @@ const EditProfile = ({ navigation }) => {
             setAge(userData.age);
             setEmail(userData.email);
             setPhoneNumber(userData.phoneNumber);
+            setTelegramHandle(userData.telegramHandle);
           } else {
             console.log("User document not found");
           }
@@ -48,12 +50,12 @@ const EditProfile = ({ navigation }) => {
 
   // Enable/disable update button based on field completion
   useEffect(() => {
-    if (fullName && age && phoneNumber && email) {
+    if (fullName && age && phoneNumber && email && telegramHandle) {
       setIsButtonDisabled(false);
     } else {
       setIsButtonDisabled(true);
     }
-  }, [fullName, age, phoneNumber, email]);
+  }, [fullName, age, phoneNumber, email, telegramHandle]);
 
   const handleUpdateProfile = () => {
     const user = firebase.auth().currentUser;
@@ -74,6 +76,7 @@ const EditProfile = ({ navigation }) => {
               age: age,
               phoneNumber: phoneNumber,
               email: email,
+              telegramHandle: telegramHandle,
             })
             .then(() => {
               console.log("Profile updated successfully");
@@ -166,6 +169,16 @@ const EditProfile = ({ navigation }) => {
           placeholderTextColor="#666666"
           value={fullName}
           onChangeText={setFullName}
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Telegram Handle</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Telegram Handle"
+          placeholderTextColor="#666666"
+          value={telegramHandle}
+          onChangeText={setTelegramHandle}
         />
       </View>
       <View style={styles.inputContainer}>

@@ -76,7 +76,7 @@ const Home = () => {
           styles.carouselItemContainer,
           { width: itemWidth, height: imageHeight },
         ]}
-        onPress={() => handleListingPress(item)} 
+        onPress={() => handleListingPress(item)}
       >
         <ImageBackground
           source={{ uri: item.imageUrls[0] }}
@@ -138,6 +138,7 @@ const Home = () => {
   };
 
   const handleListingPress = (listing) => {
+    console.log(listing.id);
     navigation.navigate("Listing", { listing });
   };
 
@@ -168,12 +169,12 @@ const Home = () => {
   const renderRequestCarouselItem = ({ item }) => {
     // Calculate time elapsed since the request was posted
     const timeElapsed = getTimeElapsed(item.listingDateTime);
-  
+
     // Calculate the item width and image height based on window width
     const windowWidth = Dimensions.get("window").width;
     const itemWidth = (windowWidth - 80) / 2.5; // Adjust the values (80 and 2.5) as needed for the desired layout
     const imageHeight = itemWidth * 0.5; // Adjust the value (1.2) as needed for the desired image aspect ratio
-  
+
     return (
       <TouchableOpacity
         style={[
@@ -191,13 +192,12 @@ const Home = () => {
     );
   };
 
-
   const getTimeElapsed = (timestamp) => {
     const now = new Date();
     const listingDateTime = new Date(timestamp);
-  
+
     const timeDifferenceInSeconds = Math.floor((now - listingDateTime) / 1000);
-  
+
     if (timeDifferenceInSeconds < 60) {
       return `${timeDifferenceInSeconds} seconds ago`;
     } else if (timeDifferenceInSeconds < 3600) {
@@ -220,7 +220,6 @@ const Home = () => {
     // Handle request item press (navigate to RequestDetails, etc.)
     navigation.navigate("Request", { request });
   };
-
 
   const renderBottomBar = () => {
     const handleAddListing = () => {
@@ -283,11 +282,13 @@ const Home = () => {
           .get();
 
         const otherUsersListingData = otherUsersListingSnapshot.docs
-          .map((doc) => doc.data())
+          .map((doc) => ({
+            id: doc.id, // Include the document ID in the listing object
+            ...doc.data(),
+          }))
           .filter((listing) => listing.userID !== currentUserID);
 
         setLatestListings(otherUsersListingData);
-        
       } catch (error) {
         console.error("Error fetching latest listings:", error);
       }
@@ -297,7 +298,7 @@ const Home = () => {
       try {
         const requestsRef = firebase.firestore().collection("Requests");
         const currentUserID = firebase.auth().currentUser.uid;
-  
+
         // Get the latest requests posted by other users (excluding the current user's latest request)
         const otherUsersRequestsSnapshot = await requestsRef
           .where("userID", "!=", currentUserID)
@@ -305,11 +306,11 @@ const Home = () => {
           .orderBy("listingDateTime", "desc")
           .limit(6)
           .get();
-  
+
         const otherUsersRequestsData = otherUsersRequestsSnapshot.docs
           .map((doc) => doc.data())
           .filter((request) => request.userID !== currentUserID);
-  
+
         setLatestRequests(otherUsersRequestsData);
       } catch (error) {
         console.error("Error fetching latest requests:", error);

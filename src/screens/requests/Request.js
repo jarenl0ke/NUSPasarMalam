@@ -7,6 +7,7 @@ import {
   Text,
   Alert,
   StyleSheet,
+  Clipboard,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -19,11 +20,14 @@ const Request = () => {
   const { request } = route.params;
   const [requesterFullName, setRequesterFullName] = useState("");
   const [requestTime, setRequestTime] = useState(null);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [telegramHandle, setTelegramHandle] = useState("");
   const navigation = useNavigation();
 
   useEffect(() => {
     fetchRequesterFullName();
     calculateRequestTime();
+    fetchSellerTelegramHandle();
   }, []);
 
   const fetchRequesterFullName = async () => {
@@ -65,62 +69,38 @@ const Request = () => {
 
   const currentUserID = firebase.auth().currentUser.uid;
   const showDeleteButton = request.userID === currentUserID;
-  const showChatButton = request.userID !== currentUserID;
+  const showContactButton = request.userID !== currentUserID;
 
-  const deleteRequestHandler = async () => {
-    Alert.alert(
-      "Confirm Deletion",
-      "Are you sure you want to delete this listing?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Delete", style: "destructive", onPress: deleteListing },
-      ]
-    );
-  };
-
-  const deleteListing = async () => {
+  const fetchSellerTelegramHandle = async () => {
     try {
-      await firebase
+      const userDoc = await firebase
         .firestore()
-        .collection("Requests")
-        .doc(request.id)
-        .delete();
-      Alert.alert("Request deleted successfully.");
-      navigation.goBack();
-    } catch (error) {
-      console.error("Error deleting request:", error);
-      Alert.alert("An error occurred while deleting the request.");
-    }
-  };
-
-  const chatPressHandler = async () => {
-    try {
-      const snapshot = await firebase
-        .firestore()
-        .collection("Chats")
-        .where("requestID", "==", request.id)
-        .where("userID", "==", currentUserID)
-        .where("requesterID", "==", request.userID)
+        .collection("users")
+        .doc(request.userID)
         .get();
-
-      // Check if chat already exists
-      if (!snapshot.empty) {
-        const chatDoc = snapshot.docs[0];
-        const chatID = chatDoc.id;
-        navigation.navigate("Chat", { chatID, request });
-      } else {
-        const chatRef = await firebase.firestore().collection("Chats").add({
-          requestID: request.id,
-          userID: currentUserID,
-          requesterID: request.userID,
-        });
-
-        const newChatID = chatRef.id;
-        navigation.navigate("Chat", { chatID: newChatID, listing });
-      }
+      const userData = userDoc.data();
+      const sellerTelegramHandle = userData.telegramHandle || ""; // Get the seller's Telegram handle or an empty string if it's not available
+      setTelegramHandle(sellerTelegramHandle);
     } catch (error) {
-      console.error("Error checking/changing chat status:", error);
+      console.error("Error fetching seller's Telegram handle:", error);
     }
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await Clipboard.setString(telegramHandle);
+      Alert.alert(
+        "Telegram Handle Copied",
+        "Requester's Telegram handle has been copied to the clipboard."
+      );
+    } catch (error) {
+      console.error("Error copying to clipboard:", error);
+      Alert.alert("Error", "An error occurred while copying to clipboard.");
+    }
+  };
+
+  const togglePopup = () => {
+    setIsPopupVisible((prevState) => !prevState);
   };
 
   return (
@@ -153,21 +133,38 @@ const Request = () => {
               <Text style={styles.deleteButtonText}>Delete Listing</Text>
             </TouchableOpacity>
           )}
-          {showChatButton && (
+          {showContactButton && (
             <TouchableOpacity
-              style={styles.chatButton}
-              onPress={chatPressHandler}
+              style={styles.contactButton} // Changed from chatButton to contactButton
+              onPress={togglePopup} // Show/hide the popup on button press
             >
-              <Text style={styles.chatButtonText}>Chat with Seller</Text>
+              <Text style={styles.contactButtonText}>Contact Requester</Text>
             </TouchableOpacity>
           )}
         </View>
       </ScrollView>
+
+      {/* The popup */}
+      {isPopupVisible && (
+        <View style={styles.popupContainer}>
+          <View style={styles.popup}>
+            <Text style={styles.popupText}>Requester's Telegram Handle:</Text>
+            <Text style={styles.telegramHandleText}>{telegramHandle}</Text>
+            <TouchableOpacity
+              style={styles.copyButton}
+              onPress={copyToClipboard}
+            >
+              <Text style={styles.copyButtonText}>Copy to Clipboard</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
-
-export default Request;
 
 const styles = StyleSheet.create({
   container: {
@@ -235,4 +232,70 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
+  popupContainer: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)", // Semi-transparent background
+  },
+  popup: {
+    width: "70%",
+    backgroundColor: "#1E1E1E",
+    borderRadius: 10,
+    padding: 20,
+    elevation: 5,
+  },
+  popupText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  telegramHandleText: {
+    color: "#87CEEB",
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  copyButton: {
+    backgroundColor: "#1E90FF",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  copyButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  closeButton: {
+    backgroundColor: "#FF0000",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  contactButton: {
+    backgroundColor: "#1E90FF", // Blue color
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  contactButtonText: {
+    color: "#FFFFFF", // White color
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });
+
+export default Request;
