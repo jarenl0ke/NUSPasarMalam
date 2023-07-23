@@ -21,9 +21,9 @@ const Home = () => {
   const [latestListings, setLatestListings] = useState([]);
   const [latestRequests, setLatestRequests] = useState([]);
 
-  // Dummy to handle search functionality
-  const handleSearch = (text) => {
-    console.log("Searching for:", text);
+  const handleSearchBarPress = () => {
+    // Navigate to the Search.js screen
+    navigation.navigate("Search");
   };
 
   const handleChatPress = () => {
@@ -161,7 +161,6 @@ const Home = () => {
   };
 
   const handleListingPress = (listing) => {
-    console.log(listing.id);
     navigation.navigate("Listing", { listing });
   };
 
@@ -346,16 +345,13 @@ const Home = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchBarContainer}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search..."
-          placeholderTextColor="#777"
-          onChangeText={handleSearch}
-        />
-        <TouchableOpacity style={styles.chatButton} onPress={handleChatPress}>
-          <Ionicons name="chatbubbles" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>NUS Pasar Malam</Text>
+        <View style={styles.headerIconContainer}>
+          <TouchableOpacity onPress={handleChatPress}>
+            <Ionicons name="chatbubbles" size={28} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
       <Text style={styles.headerText}>What are you looking for today?</Text>
       {renderCategories()}
@@ -428,6 +424,25 @@ const categories = [
 ];
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  headerText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  headerIconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    position: "absolute",
+    right: -5,
+    padding: 10,
+  },
   headerText: {
     color: "#FFFFFF",
     fontSize: 18,
@@ -577,24 +592,24 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   textContainer: {
-    flexDirection: "row", // Display text items horizontally
-    justifyContent: "flex-start", // Align text items to the left
-    width: "100%", // Fill the width of the image container
+    flexDirection: "row",
+    justifyContent: "flex-start", 
+    width: "100%", 
   },
   textBackground: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Background overlay color (adjust opacity as needed)
+    backgroundColor: "rgba(0, 0, 0, 0.5)", 
     padding: 5,
     flex: 1,
     borderRadius: 10,
   },
   requestCarouselItemContainer: {
-    backgroundColor: "#2c2c2c", // Adjust as needed
+    backgroundColor: "#2c2c2c", 
   },
   requestInfoContainer: {
     flex: 1,
     justifyContent: "center",
     padding: 10,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Background overlay color (adjust opacity as needed)
+    backgroundColor: "rgba(0, 0, 0, 0.5)", 
     borderRadius: 10,
   },
   requestTitle: {
@@ -607,13 +622,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 12,
   },
-
-  // Adjusted size for the "View all" button for requests
   viewAllButton: {
     backgroundColor: "#3b3b3b",
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 5,
-    alignSelf: "flex-start", // Align the button to the left
+    alignSelf: "flex-start",
+  },
+  iconSpacing: {
+    width: 10, 
   },
 });

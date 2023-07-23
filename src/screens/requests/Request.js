@@ -7,8 +7,8 @@ import {
   Text,
   Alert,
   StyleSheet,
-  Clipboard,
 } from "react-native";
+import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import firebase from "../../../database/Firebase";

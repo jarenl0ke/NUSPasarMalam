@@ -20,6 +20,7 @@ import Request from "./src/screens/requests/Request";
 import Chat from "./src/screens/chats/Chat";
 import MyChats from "./src/screens/chats/MyChats";
 import SellerChat from "./src/screens/chats/SellerChat";
+import Search from "./src/screens/Search";
 
 const Stack = createStackNavigator();
 
@@ -110,6 +111,11 @@ export default function App() {
           <Stack.Screen
             name="SellerChat"
             component={SellerChat}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Search"
+            component={Search}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

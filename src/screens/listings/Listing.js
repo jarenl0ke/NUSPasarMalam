@@ -101,13 +101,10 @@ const Listing = () => {
         .get();
 
       if (!snapshot.empty) {
-        // Chat already exists, navigate to the existing chat room
         const chatDoc = snapshot.docs[0];
         const chatID = chatDoc.id;
-        const imageUrl = listing.imageUrls[0];
-        navigation.navigate("Chat", { chatID, listing, imageUrl });
+        navigation.navigate("Chat", { chatID, listing });
       } else {
-        // Chat doesn't exist, create a new chat document and navigate to the chat room
         const chatRef = await firebase.firestore().collection("Chats").add({
           sellerID: listing.userID,
           listingID: listing.id,
@@ -115,8 +112,7 @@ const Listing = () => {
         });
 
         const newChatID = chatRef.id;
-        const imageUrl = listing.imageUrls[0];
-        navigation.navigate("Chat", { chatID: newChatID, listing, imageUrl });
+        navigation.navigate("Chat", { chatID: newChatID, listing });
       }
     } catch (error) {
       console.error("Error checking/changing chat status:", error);

@@ -35,12 +35,12 @@ const Chat = () => {
         const imageSnapshot = await firebase
           .firestore()
           .collection("Listings")
-          .doc(listing.id) 
+          .doc(listing.id)
           .get();
 
         if (imageSnapshot.exists) {
           const data = imageSnapshot.data();
-          setImageUrl(data.imageUrls[0])
+          setImageUrl(data.imageUrls[0]);
         }
       } catch (error) {
         console.error("Error fetching image URL:", error);
@@ -146,7 +146,9 @@ const Chat = () => {
       </TouchableOpacity>
       <View style={styles.headerContainer}>
         <View style={styles.headerContent}>
-          <Image source={{ uri: imageUrl }} style={styles.listingImage} />
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.listingImage} />
+          ) : null}
           <View style={styles.listingDetails}>
             <Text style={styles.listingTitle}>{listingTitle}</Text>
             <Text style={styles.listingPrice}>Price: ${listingPrice}</Text>

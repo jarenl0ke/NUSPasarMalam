@@ -12,7 +12,7 @@ import {
 import firebase from "../../../database/Firebase";
 import "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
-import { useRoute } from "@react-navigation/native"; 
+import { useRoute } from "@react-navigation/native";
 
 import Categories from "../../../constants/Categories";
 
@@ -23,17 +23,18 @@ const sortOptions = [
 ];
 
 const AllListings = ({ navigation }) => {
-  const route = useRoute(); 
+  const route = useRoute();
   const { selectedCategory: initialSelectedCategory } = route.params;
 
-  const [selectedCategory, setSelectedCategory] = useState(initialSelectedCategory);
+  const [selectedCategory, setSelectedCategory] = useState(
+    initialSelectedCategory
+  );
   const [isModalVisible, setModalVisible] = useState(false);
   const [isSortModalVisible, setSortModalVisible] = useState(false);
   const [listings, setListings] = useState([]);
   const [sortOption, setSortOption] = useState("dateLatestToOldest");
   const currentUserID = firebase.auth().currentUser.uid;
 
-  
   useEffect(() => {
     const fetchListings = async () => {
       try {
@@ -109,7 +110,7 @@ const AllListings = ({ navigation }) => {
     toggleSortModal();
   };
 
-  const renderListingItem = ({ item, index }) => {
+  const renderListingItem = ({ item }) => {
     return (
       <TouchableOpacity
         style={styles.listingItemContainer}
@@ -143,6 +144,12 @@ const AllListings = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         <Text style={styles.headerText}>All Listings</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Search")} // Navigate to Search component
+          style={styles.searchIconContainer}
+        >
+          <Ionicons name="search" size={24} color="#FFFFFF" paddingTop={30} />
+        </TouchableOpacity>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.categoryButton} onPress={toggleModal}>
@@ -241,6 +248,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   headerContainer: {
+    justifyContent: "center",
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
@@ -263,6 +271,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#FFFFFF",
     textAlign: "center",
+    paddingLeft: 30,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -279,8 +288,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: "center",
     justifyContent: "center",
-    height:50,
-
+    height: 50,
   },
   categoryButtonText: {
     color: "#000000",
@@ -297,7 +305,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: "center",
     justifyContent: "center",
-    height:50,
+    height: 50,
   },
   sortButtonText: {
     color: "#000000",
