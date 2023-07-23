@@ -18,6 +18,7 @@ import "firebase/auth";
 
 import CategorySelection from "../../components/homepage/CategorySelection";
 import ViewAllButton from "../../components/ui/ViewAllButton";
+import LatestListings from "../../components/homepage/LatestListings";
 
 const Home = () => {
   const navigation = useNavigation();
@@ -296,7 +297,7 @@ const Home = () => {
       </View>
       <Text style={styles.headerText}>What are you looking for today?</Text>
       <CategorySelection onPress={handleCategoryPress} />
-      {renderLatestListings()}
+      <LatestListings data={latestListings} />
       {renderLatestRequests()}
       {renderBottomBar()}
     </View>
@@ -321,7 +322,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 20,
   },
-
   searchBarContainer: {
     marginBottom: 20,
     flexDirection: "row",
@@ -368,10 +368,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
   },
-  latestListingsContainer: {
-    marginTop: 0,
-    marginBottom: 150,
-  },
   latestRequestsContainer: {
     marginTop: -100,
     marginBottom: 120,
@@ -382,44 +378,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "left",
   },
-  carouselItemContainer: {
-    borderRadius: 10,
-    overflow: "hidden",
-    marginRight: 10,
-    justifyContent: "center",
-  },
-  carouselItemImage: {
-    width: "100%",
-    height: 160,
-    justifyContent: "flex-end",
-  },
-  carouselItemTitle: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "bold",
-    marginVertical: 1,
-  },
-  carouselItemPrice: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    marginVertical: 4,
-  },
   latestListingsHeaderContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 10,
-  },
-  textContainer: {
-    flexDirection: "row", // Display text items horizontally
-    justifyContent: "flex-start", // Align text items to the left
-    width: "100%", // Fill the width of the image container
-  },
-  textBackground: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Background overlay color (adjust opacity as needed)
-    padding: 5,
-    flex: 1,
-    borderRadius: 10,
   },
   requestCarouselItemContainer: {
     backgroundColor: "#2c2c2c", // Adjust as needed
