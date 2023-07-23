@@ -30,28 +30,28 @@ const Search = () => {
   const searchListings = async (searchText, currentUserID) => {
     try {
       const listingsRef = firebase.firestore().collection("Listings");
-  
-      const lowercaseSearchText = searchText.toLowerCase(); // Convert the search text to lowercase
-  
+
+      const lowercaseSearchText = searchText.toLowerCase();
+
       const snapshot = await listingsRef
-        .where("listingTitleLowercase", ">=", lowercaseSearchText) // Use the lowercase version of listingTitle
+        .where("listingTitleLowercase", ">=", lowercaseSearchText)
         .where("listingTitleLowercase", "<=", lowercaseSearchText + "\uf8ff")
+        .orderBy("listingTitleLowercase") // Order the results by listingTitleLowercase
         .get();
-  
+
       const data = snapshot.docs
         .map((doc) => {
           const listingData = doc.data();
           return { ...listingData, id: doc.id };
         })
         .filter((item) => item.userID !== currentUserID);
-  
+
       return data;
     } catch (error) {
       console.error("Error fetching listings:", error);
       return [];
     }
   };
-  
 
   const fetchSearchResults = async () => {
     try {
