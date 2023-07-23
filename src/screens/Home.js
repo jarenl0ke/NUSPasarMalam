@@ -4,12 +4,7 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  Image,
   Text,
-  SafeAreaView,
-  FlatList,
-  ImageBackground,
-  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -17,175 +12,97 @@ import firebase from "../../database/Firebase";
 import "firebase/auth";
 
 import CategorySelection from "../../components/homepage/CategorySelection";
-import ViewAllButton from "../../components/ui/ViewAllButton";
 import LatestListings from "../../components/homepage/LatestListings";
+import LatestRequests from "../../components/homepage/LatestRequests";
+import BottomBar from "../../components/homepage/BottomBar";
 
 const Home = () => {
   const navigation = useNavigation();
   const [latestListings, setLatestListings] = useState([]);
   const [latestRequests, setLatestRequests] = useState([]);
 
-  // Dummy to handle search functionality
-  const handleSearch = (text) => {
-    console.log("Searching for:", text);
-  };
+  useEffect(() => {
+    fetchLatestListings();
+    fetchLatestRequests();
+  }, []);
 
-  const handleChatPress = () => {
-    navigation.navigate("MyChats");
-  };
+  const fetchLatestListings = async () => {
+    try {
+      const listingsRef = firebase.firestore().collection("Listings");
+      const currentUserID = firebase.auth().currentUser.uid;
 
-  const handleCategoryPress = (category) => {
-    navigation.navigate("AllListings", {
-      selectedCategory: category.categoryName,
-    });
-  };
+      // Get the latest listings posted by other users (excluding the current user's latest listing)
+      const otherUsersListingSnapshot = await listingsRef
+        .where("userID", "!=", currentUserID)
+        .orderBy("userID", "asc")
+        .orderBy("listingDateTime", "desc")
+        .limit(6) // Increase the limit to 6 to include the latest 5 listings from other users
+        .get();
 
-  const renderCarouselItem = ({ item }) => {
-    const windowWidth = Dimensions.get("window").width;
-    const itemWidth = (windowWidth - 80) / 2.5;
-    const imageHeight = itemWidth * 1.2;
+      const otherUsersListingData = otherUsersListingSnapshot.docs
+        .map((doc) => doc.data())
+        .filter((listing) => listing.userID !== currentUserID);
 
-    return (
-      <TouchableOpacity
-        style={[
-          styles.carouselItemContainer,
-          { width: itemWidth, height: imageHeight },
-        ]}
-        onPress={() => handleListingPress(item)}
-      >
-        <ImageBackground
-          source={{ uri: item.imageUrls[0] }}
-          style={styles.carouselItemImage}
-          imageStyle={{ ...styles.carouselItemImage, resizeMode: "cover" }}
-        >
-          {/* Background overlay */}
-          <View style={styles.textContainer}>
-            <View style={styles.textBackground}>
-              <Text
-                style={styles.carouselItemTitle}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                {item.listingTitle}
-              </Text>
-              <Text
-                style={styles.carouselItemPrice}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                ${item.price}
-              </Text>
-            </View>
-          </View>
-        </ImageBackground>
-      </TouchableOpacity>
-    );
-  };
-
-  const renderLatestListings = () => {
-    return (
-      <View style={styles.latestListingsContainer}>
-        <View style={styles.latestListingsHeaderContainer}>
-          <Text style={styles.latestListingsHeader}>Latest Listings</Text>
-          <ViewAllButton onPress={handleViewAllListings} />
-        </View>
-        <FlatList
-          data={latestListings}
-          renderItem={renderCarouselItem}
-          keyExtractor={(item, index) => index.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.carouselContainer}
-        />
-      </View>
-    );
-  };
-
-  const handleViewAllListings = () => {
-    navigation.navigate("AllListings", {
-      selectedCategory: "All Categories",
-    });
-  };
-
-  const handleListingPress = (listing) => {
-    navigation.navigate("Listing", { listing });
-  };
-
-  const renderLatestRequests = () => {
-    return (
-      <View style={styles.latestRequestsContainer}>
-        <View style={styles.latestListingsHeaderContainer}>
-          <Text style={styles.latestListingsHeader}>Latest Requests</Text>
-          <ViewAllButton onPress={handleViewAllRequests} />
-        </View>
-        <FlatList
-          data={latestRequests}
-          renderItem={renderRequestCarouselItem}
-          keyExtractor={(item, index) => index.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.carouselContainer}
-        />
-      </View>
-    );
-  };
-
-  const renderRequestCarouselItem = ({ item }) => {
-    // Calculate time elapsed since the request was posted
-    const timeElapsed = getTimeElapsed(item.listingDateTime);
-
-    // Calculate the item width and image height based on window width
-    const windowWidth = Dimensions.get("window").width;
-    const itemWidth = (windowWidth - 80) / 2.5; // Adjust the values (80 and 2.5) as needed for the desired layout
-    const imageHeight = itemWidth * 0.5; // Adjust the value (1.2) as needed for the desired image aspect ratio
-
-    return (
-      <TouchableOpacity
-        style={[
-          styles.carouselItemContainer,
-          { width: itemWidth, height: imageHeight },
-        ]}
-        onPress={() => handleRequestPress(item)} // Handle request item press
-      >
-        {/* Render the request title and time elapsed */}
-        <View style={styles.requestInfoContainer}>
-          <Text style={styles.requestTitle}>{item.requestTitle}</Text>
-          <Text style={styles.timeElapsedText}>{timeElapsed}</Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  const getTimeElapsed = (timestamp) => {
-    const now = new Date();
-    const listingDateTime = new Date(timestamp);
-
-    const timeDifferenceInSeconds = Math.floor((now - listingDateTime) / 1000);
-
-    if (timeDifferenceInSeconds < 60) {
-      return `${timeDifferenceInSeconds} seconds ago`;
-    } else if (timeDifferenceInSeconds < 3600) {
-      const minutes = Math.floor(timeDifferenceInSeconds / 60);
-      return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
-    } else if (timeDifferenceInSeconds < 86400) {
-      const hours = Math.floor(timeDifferenceInSeconds / 3600);
-      return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
-    } else {
-      const days = Math.floor(timeDifferenceInSeconds / 86400);
-      return `${days} ${days === 1 ? "day" : "days"} ago`;
+      setLatestListings(otherUsersListingData);
+    } catch (error) {
+      console.error("Error fetching latest listings:", error);
     }
   };
 
-  const handleViewAllRequests = () => {
-    navigation.navigate("AllRequests");
-  };
+  const fetchLatestRequests = async () => {
+    try {
+      const requestsRef = firebase.firestore().collection("Requests");
+      const currentUserID = firebase.auth().currentUser.uid;
 
-  const handleRequestPress = (request) => {
-    // Handle request item press (navigate to RequestDetails, etc.)
-    navigation.navigate("Request", { request });
-  };
+      // Get the latest requests posted by other users (excluding the current user's latest request)
+      const otherUsersRequestsSnapshot = await requestsRef
+        .where("userID", "!=", currentUserID)
+        .orderBy("userID", "asc")
+        .orderBy("listingDateTime", "desc")
+        .limit(6)
+        .get();
 
-  const renderBottomBar = () => {
+      const otherUsersRequestsData = otherUsersRequestsSnapshot.docs
+        .map((doc) => doc.data())
+        .filter((request) => request.userID !== currentUserID);
+
+      setLatestRequests(otherUsersRequestsData);
+    } catch (error) {
+      console.error("Error fetching latest requests:", error);
+    }
+
+    const handleSearch = (text) => {
+      console.log("Searching for:", text);
+    };
+
+    const handleChatPress = () => {
+      navigation.navigate("MyChats");
+    };
+
+    const handleCategoryPress = (category) => {
+      navigation.navigate("AllListings", {
+        selectedCategory: category.categoryName,
+      });
+    };
+
+    const handleListingPress = (listing) => {
+      navigation.navigate("Listing", { listing });
+    };
+
+    const handleViewAllListings = () => {
+      navigation.navigate("AllListings", {
+        selectedCategory: "All Categories",
+      });
+    };
+
+    const handleRequestPress = (request) => {
+      navigation.navigate("Request", { request });
+    };
+
+    const handleViewAllRequests = () => {
+      navigation.navigate("AllRequests");
+    };
+
     const handleAddListing = () => {
       navigation.navigate("AddListing");
     };
@@ -199,109 +116,38 @@ const Home = () => {
     };
 
     return (
-      <SafeAreaView style={styles.bottomBar}>
-        <TouchableOpacity
-          style={styles.bottomBarItem}
-          onPress={handleAddListing}
-        >
-          <Image
-            source={require("../../assets/Images/sell.png")}
-            style={styles.bottomBarIcon}
+      <View style={styles.container}>
+        <View style={styles.searchBarContainer}>
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search..."
+            placeholderTextColor="#777"
+            onChangeText={handleSearch}
           />
-          <Text style={styles.bottomBarText}>New Listing</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.bottomBarItem}
-          onPress={handleAddRequest}
-        >
-          <Image
-            source={require("../../assets/Images/buy.png")}
-            style={styles.bottomBarIcon}
-          />
-          <Text style={styles.bottomBarText}>New Request</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomBarItem} onPress={handleSettings}>
-          <Image
-            source={require("../../assets/Images/settings.png")}
-            style={styles.bottomBarIcon}
-          />
-          <Text style={styles.bottomBarText}>Settings</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
+          <TouchableOpacity style={styles.chatButton} onPress={handleChatPress}>
+            <Ionicons name="chatbubbles" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.headerText}>What are you looking for today?</Text>
+        <CategorySelection onPress={handleCategoryPress} />
+        <LatestListings
+          data={latestListings}
+          onPress={handleListingPress}
+          viewAll={handleViewAllListings}
+        />
+        <LatestRequests
+          data={latestRequests}
+          onPress={handleRequestPress}
+          viewAll={handleViewAllRequests}
+        />
+        <BottomBar
+          listing={handleAddListing}
+          request={handleAddRequest}
+          settings={handleSettings}
+        />
+      </View>
     );
   };
-
-  useEffect(() => {
-    const fetchLatestListings = async () => {
-      try {
-        const listingsRef = firebase.firestore().collection("Listings");
-        const currentUserID = firebase.auth().currentUser.uid;
-
-        // Get the latest listings posted by other users (excluding the current user's latest listing)
-        const otherUsersListingSnapshot = await listingsRef
-          .where("userID", "!=", currentUserID)
-          .orderBy("userID", "asc")
-          .orderBy("listingDateTime", "desc")
-          .limit(6) // Increase the limit to 6 to include the latest 5 listings from other users
-          .get();
-
-        const otherUsersListingData = otherUsersListingSnapshot.docs
-          .map((doc) => doc.data())
-          .filter((listing) => listing.userID !== currentUserID);
-
-        setLatestListings(otherUsersListingData);
-      } catch (error) {
-        console.error("Error fetching latest listings:", error);
-      }
-    };
-
-    const fetchLatestRequests = async () => {
-      try {
-        const requestsRef = firebase.firestore().collection("Requests");
-        const currentUserID = firebase.auth().currentUser.uid;
-
-        // Get the latest requests posted by other users (excluding the current user's latest request)
-        const otherUsersRequestsSnapshot = await requestsRef
-          .where("userID", "!=", currentUserID)
-          .orderBy("userID", "asc")
-          .orderBy("listingDateTime", "desc")
-          .limit(6)
-          .get();
-
-        const otherUsersRequestsData = otherUsersRequestsSnapshot.docs
-          .map((doc) => doc.data())
-          .filter((request) => request.userID !== currentUserID);
-
-        setLatestRequests(otherUsersRequestsData);
-      } catch (error) {
-        console.error("Error fetching latest requests:", error);
-      }
-    };
-
-    fetchLatestListings();
-    fetchLatestRequests();
-  }, []);
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.searchBarContainer}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search..."
-          placeholderTextColor="#777"
-          onChangeText={handleSearch}
-        />
-        <TouchableOpacity style={styles.chatButton} onPress={handleChatPress}>
-          <Ionicons name="chatbubbles" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.headerText}>What are you looking for today?</Text>
-      <CategorySelection onPress={handleCategoryPress} />
-      <LatestListings data={latestListings} />
-      {renderLatestRequests()}
-      {renderBottomBar()}
-    </View>
-  );
 };
 
 export default Home;
@@ -341,67 +187,5 @@ const styles = StyleSheet.create({
   chatButton: {
     marginLeft: 10,
     padding: 10,
-  },
-  bottomBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#1E1E1E",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  bottomBarItem: {
-    flex: 1,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  bottomBarIcon: {
-    width: 20,
-    height: 20,
-  },
-  bottomBarText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    marginTop: 5,
-  },
-  latestRequestsContainer: {
-    marginTop: -100,
-    marginBottom: 120,
-  },
-  latestListingsHeader: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "left",
-  },
-  latestListingsHeaderContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  requestCarouselItemContainer: {
-    backgroundColor: "#2c2c2c", // Adjust as needed
-  },
-  requestInfoContainer: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 10,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Background overlay color (adjust opacity as needed)
-    borderRadius: 10,
-  },
-  requestTitle: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  timeElapsedText: {
-    color: "#FFFFFF",
-    fontSize: 12,
   },
 });

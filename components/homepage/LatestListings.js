@@ -11,13 +11,7 @@ import {
 import SubHeader from "../ui/SubHeader";
 import ViewAllButton from "../ui/ViewAllButton";
 
-const LatestListings = ({ data }) => {
-  const handleViewAllListings = () => {
-    navigation.navigate("AllListings", {
-      selectedCategory: "All Categories",
-    });
-  };
-
+const LatestListings = ({ data, onPress, viewAll }) => {
   const renderCarouselItem = ({ item }) => {
     const windowWidth = Dimensions.get("window").width;
     const itemWidth = (windowWidth - 80) / 2.5;
@@ -29,7 +23,7 @@ const LatestListings = ({ data }) => {
           styles.carouselItemContainer,
           { width: itemWidth, height: imageHeight },
         ]}
-        onPress={() => handleListingPress(item)}
+        onPress={() => onPress(item)}
       >
         <ImageBackground
           source={{ uri: item.imageUrls[0] }}
@@ -64,7 +58,7 @@ const LatestListings = ({ data }) => {
     <View style={styles.latestListingsContainer}>
       <View style={styles.subHeaderContainer}>
         <SubHeader>Latest Listings</SubHeader>
-        <ViewAllButton onPress={handleViewAllListings} />
+        <ViewAllButton onPress={viewAll} />
       </View>
       <FlatList
         data={data}
