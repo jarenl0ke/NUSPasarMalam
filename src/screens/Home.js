@@ -349,10 +349,6 @@ const Home = () => {
       <View style={styles.header}>
         <Text style={styles.headerText}>NUS Pasar Malam</Text>
         <View style={styles.headerIconContainer}>
-          <TouchableOpacity onPress={handleSearchBarPress}>
-            <Ionicons name="search" size={28} color="#FFFFFF" />
-          </TouchableOpacity>
-          <View style={styles.iconSpacing} />
           <TouchableOpacity onPress={handleChatPress}>
             <Ionicons name="chatbubbles" size={28} color="#FFFFFF" />
           </TouchableOpacity>

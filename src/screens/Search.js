@@ -4,102 +4,60 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
-  SafeAreaView,
   FlatList,
-  Dimensions,
-  Keyboard,
+  Image,
   ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import firebase from "../../database/Firebase"; // Import your Firebase configuration
 
-// Define the search types for Listings and Requests
 const SEARCH_TYPES = {
   LISTINGS: "Listings",
-  REQUESTS: "Requests",
 };
 
-const Search = ({ route }) => {
+const Search = () => {
   const navigation = useNavigation();
-  const searchTextInputRef = useRef(null); // Create a ref for the search text input
-  const [selectedSearchType, setSelectedSearchType] = useState(
-    SEARCH_TYPES.LISTINGS
-  );
+  const searchTextInputRef = useRef(null);
+  const [selectedSearchType] = useState(SEARCH_TYPES.LISTINGS);
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Handle navigation back to Home.js
   const handleBackButtonPress = () => {
     navigation.goBack();
   };
-
-  // Handle toggle buttons
-  const handleListingsToggle = () => {
-    setSelectedSearchType(SEARCH_TYPES.LISTINGS);
-  };
-
-  const handleRequestsToggle = () => {
-    setSelectedSearchType(SEARCH_TYPES.REQUESTS);
-  };
-
-  // Function to fetch listings based on search text
   const searchListings = async (searchText, currentUserID) => {
     try {
       const listingsRef = firebase.firestore().collection("Listings");
-
+  
+      const lowercaseSearchText = searchText.toLowerCase(); // Convert the search text to lowercase
+  
       const snapshot = await listingsRef
-        .where("listingTitle", ">=", searchText) // Search by listingTitle
-        .where("listingTitle", "<=", searchText + "\uf8ff")
+        .where("listingTitleLowercase", ">=", lowercaseSearchText) // Use the lowercase version of listingTitle
+        .where("listingTitleLowercase", "<=", lowercaseSearchText + "\uf8ff")
         .get();
-
+  
       const data = snapshot.docs
-        .map((doc) => doc.data())
-        .filter((item) => item.userID !== currentUserID); // Exclude own listings
-
+        .map((doc) => {
+          const listingData = doc.data();
+          return { ...listingData, id: doc.id };
+        })
+        .filter((item) => item.userID !== currentUserID);
+  
       return data;
     } catch (error) {
       console.error("Error fetching listings:", error);
       return [];
     }
   };
+  
 
-  // Function to fetch requests based on search text
-  const searchRequests = async (searchText, currentUserID) => {
-    try {
-      const requestsRef = firebase.firestore().collection("Requests");
-
-      const snapshot = await requestsRef
-        .where("requestTitle", ">=", searchText) // Search by requestTitle
-        .where("requestTitle", "<=", searchText + "\uf8ff")
-        .get();
-
-      const data = snapshot.docs
-        .map((doc) => doc.data())
-        .filter((item) => item.userID !== currentUserID); // Exclude own requests
-
-      return data;
-    } catch (error) {
-      console.error("Error fetching requests:", error);
-      return [];
-    }
-  };
-
-  // Function to fetch search results based on selected search type
   const fetchSearchResults = async () => {
     try {
       setLoading(true);
-
-      let data = [];
       const currentUserID = firebase.auth().currentUser.uid;
-
-      if (selectedSearchType === SEARCH_TYPES.LISTINGS) {
-        data = await searchListings(searchText, currentUserID);
-      } else if (selectedSearchType === SEARCH_TYPES.REQUESTS) {
-        data = await searchRequests(searchText, currentUserID);
-      }
-
+      const data = await searchListings(searchText, currentUserID);
       setLoading(false);
       setSearchResults(data);
     } catch (error) {
@@ -109,99 +67,89 @@ const Search = ({ route }) => {
     }
   };
 
-  // Trigger search whenever the search text changes
   useEffect(() => {
     const fetchSearchResultsWithDebounce = async () => {
-      // Add a small delay (e.g., 300ms) before triggering the search
       await new Promise((resolve) => setTimeout(resolve, 300));
       fetchSearchResults();
     };
 
-    console.log("Search text changed:", searchText);
     fetchSearchResultsWithDebounce();
   }, [searchText]);
 
-  // Handle search text change
   const handleSearchTextChange = (text) => {
     setSearchText(text);
   };
 
-  // Handle search button press
-  const handleSearchButtonPress = () => {
-    fetchSearchResults();
+  const renderListingItem = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={styles.listingItemContainer}
+        onPress={() => handleListingPress(item)}
+      >
+        <Image
+          source={{ uri: item.imageUrls[0] }}
+          style={styles.listingItemImage}
+        />
+        <View style={styles.listingItemInfo}>
+          <Text style={styles.listingItemTitle}>{item.listingTitle}</Text>
+          <Text style={styles.listingItemPrice}>Price: ${item.price}</Text>
+        </View>
+      </TouchableOpacity>
+    );
   };
 
-  // Render search result item
-  const renderItem = ({ item }) => {
+  const handleListingPress = (listing) => {
+    // Navigate to the Listing screen with the selected listing data
+    navigation.navigate("Listing", { listing });
+  };
+
+  const renderPlaceholder = () => {
+    let placeholderText = "Enter your search query above.";
+
+    if (searchText.trim() !== "") {
+      placeholderText = "No results found.";
+    }
+
     return (
-      <View>
-        <Text>{item.listingTitle}</Text>
+      <View style={styles.placeholderContainer}>
+        <Text style={styles.placeholderText}>{placeholderText}</Text>
       </View>
     );
   };
 
   return (
     <View style={styles.container}>
-      {/* Top bar with back button and search bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={handleBackButtonPress}>
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <TextInput
-          ref={searchTextInputRef} // Set the ref for the search text input
+          ref={searchTextInputRef}
           style={styles.searchBar}
           placeholder="Search..."
           placeholderTextColor="#777"
           value={searchText}
           onChangeText={handleSearchTextChange}
         />
-        <TouchableOpacity onPress={handleSearchButtonPress}>
-          <Ionicons name="search" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
       </View>
-      {/* Search Results and Toggle Buttons */}
       <View style={styles.searchResultsContainer}>
         <Text style={styles.searchResultsText}>Search Results:</Text>
-        <View style={styles.toggleButtonsContainer}>
-          <TouchableOpacity
-            style={[
-              styles.toggleButton,
-              selectedSearchType === SEARCH_TYPES.LISTINGS &&
-                styles.selectedToggleButton,
-            ]}
-            onPress={handleListingsToggle}
-          >
-            <Text style={styles.toggleButtonText}>Listings</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.toggleButton,
-              selectedSearchType === SEARCH_TYPES.REQUESTS &&
-                styles.selectedToggleButton,
-            ]}
-            onPress={handleRequestsToggle}
-          >
-            <Text style={styles.toggleButtonText}>Requests</Text>
-          </TouchableOpacity>
-        </View>
       </View>
-      {/* Show loading animation */}
       {loading && <ActivityIndicator size="large" color="#FFFFFF" />}
-      {/* Show search results */}
-      {!loading && (
+      {!loading && searchText.trim() !== "" && searchResults.length > 0 ? (
         <FlatList
           data={searchResults}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id} // Replace "id" with the unique identifier key in your data
-          // Add more FlatList props as needed (e.g., styling, itemSeparatorComponent, etc.)
+          numColumns={2} // Set the number of columns
+          renderItem={renderListingItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listingsContainer}
         />
+      ) : (
+        renderPlaceholder()
       )}
-      {/* Rest of your Search.js UI */}
     </View>
   );
 };
-
-export default Search;
 
 const styles = {
   container: {
@@ -239,24 +187,51 @@ const styles = {
     fontSize: 18,
     fontWeight: "bold",
   },
-  toggleButtonsContainer: {
-    flexDirection: "row",
-    marginLeft: 20,
+  placeholderContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  toggleButton: {
-    backgroundColor: "#3b3b3b",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    marginRight: 10,
+  placeholderText: {
+    color: "#999",
+    fontSize: 16,
   },
-  selectedToggleButton: {
-    backgroundColor: "#87ceeb", // Change the color for the selected toggle button
+  listingItemContainer: {
+    backgroundColor: "#1E1E1E",
+    marginVertical: 10,
+    borderRadius: 10,
+    padding: 10,
+    alignItems: "center",
+    flexBasis: "48%",
+    paddingHorizontal: 5,
+    marginHorizontal: 5,
   },
-  toggleButtonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
+  listingItemImage: {
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  listingItemInfo: {
+    flex: 1,
+    alignItems: "center",
+  },
+  listingItemTitle: {
+    fontSize: 16,
     fontWeight: "bold",
+    color: "#FFFFFF",
+    marginBottom: 5,
+    textAlign: "center",
   },
-  // ... (your other styles)
+  listingItemPrice: {
+    fontSize: 14,
+    color: "#FFFFFF",
+    textAlign: "center",
+  },
+  listingsContainer: {
+    paddingBottom: 20,
+    paddingHorizontal: 5,
+  },
 };
+
+export default Search;
