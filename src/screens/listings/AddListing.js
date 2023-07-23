@@ -31,7 +31,6 @@ const AddListing = ({ navigation }) => {
   const [description, setDescription] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [userId, setUserId] = useState("");
-  const [listingDateTime, setListingDateTime] = useState("");
 
   useEffect(() => {
     validateForm();
