@@ -82,7 +82,7 @@ const MyRequests = ({ navigation }) => {
             <TouchableOpacity
               key={index}
               style={styles.listingItem}
-              onPress={() => requestPressHandler}
+              onPress={() => requestPressHandler(request)}
             >
               <View style={styles.listingDetails}>
                 <Text style={styles.listingTitle}>{request.requestTitle}</Text>
