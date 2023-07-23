@@ -16,6 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import firebase from "../../database/Firebase";
 import "firebase/auth";
 
+import CategorySelection from "../../components/homepage/CategorySelection";
 import ViewAllButton from "../../components/ui/ViewAllButton";
 
 const Home = () => {
@@ -36,35 +37,6 @@ const Home = () => {
     navigation.navigate("AllListings", {
       selectedCategory: category.categoryName,
     });
-  };
-
-  const renderCategoryItem = ({ item }) => {
-    return (
-      <TouchableOpacity
-        style={[
-          styles.categoryItemContainer,
-          { backgroundColor: item.backgroundColor },
-        ]}
-        onPress={() => handleCategoryPress(item)}
-      >
-        <Image source={item.icon} style={styles.categoryIcon} />
-        <Text style={styles.categoryTitle}>{item.title}</Text>
-      </TouchableOpacity>
-    );
-  };
-
-  const renderCategories = () => {
-    return (
-      <FlatList
-        data={categories}
-        numColumns={4}
-        renderItem={renderCategoryItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.categoriesContainer}
-        columnWrapperStyle={styles.categoryColumnWrapper}
-        style={{ marginTop: -25 }}
-      />
-    );
   };
 
   const renderCarouselItem = ({ item }) => {
@@ -323,7 +295,7 @@ const Home = () => {
         </TouchableOpacity>
       </View>
       <Text style={styles.headerText}>What are you looking for today?</Text>
-      {renderCategories()}
+      <CategorySelection onPress={handleCategoryPress} />
       {renderLatestListings()}
       {renderLatestRequests()}
       {renderBottomBar()}
@@ -332,65 +304,6 @@ const Home = () => {
 };
 
 export default Home;
-
-const categories = [
-  {
-    id: "1",
-    title: "Books & Magazines",
-    categoryName: "Books & Magazines",
-    icon: require("../../assets/Images/books.png"),
-    backgroundColor: "#ff7f50", // Coral color
-  },
-  {
-    id: "2",
-    title: "Clothing",
-    categoryName: "Clothing & Accessories",
-    icon: require("../../assets/Images/shirt.png"),
-    backgroundColor: "#6495ed", // Cornflower blue color
-  },
-  {
-    id: "3",
-    title: "Electronic",
-    categoryName: "Electronics",
-    icon: require("../../assets/Images/phone.png"),
-    backgroundColor: "#20b2aa", // Light sea green color
-  },
-  {
-    id: "4",
-    title: "Health",
-    categoryName: "Health",
-    icon: require("../../assets/Images/pill.png"),
-    backgroundColor: "#9370db", // Medium purple color
-  },
-  {
-    id: "5",
-    title: "Home & Kitchen",
-    categoryName: "Home & Kitchen",
-    icon: require("../../assets/Images/home.png"),
-    backgroundColor: "#f08080", // Light coral color
-  },
-  {
-    id: "6",
-    title: "Food & Beverages",
-    categoryName: "Food & Beverages",
-    icon: require("../../assets/Images/food.png"),
-    backgroundColor: "#ffa500", // Orange color
-  },
-  {
-    id: "7",
-    title: "Furniture",
-    categoryName: "Furniture",
-    icon: require("../../assets/Images/couch.png"),
-    backgroundColor: "#00ced1", // Dark turquoise color
-  },
-  {
-    id: "8",
-    title: "View All",
-    categoryName: "All Categories",
-    icon: require("../../assets/Images/view.png"),
-    backgroundColor: "#87ceeb", // Sky blue color
-  },
-];
 
 const styles = StyleSheet.create({
   headerText: {
@@ -428,33 +341,6 @@ const styles = StyleSheet.create({
   chatButton: {
     marginLeft: 10,
     padding: 10,
-  },
-  categoriesContainer: {
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
-  categoryColumnWrapper: {
-    justifyContent: "space-between",
-  },
-  categoryItemContainer: {
-    flex: 1,
-    alignItems: "center",
-    marginBottom: 10,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    marginHorizontal: 3,
-  },
-  categoryIcon: {
-    width: 32,
-    height: 32,
-    marginBottom: 8,
-    tintColor: "#FFFFFF",
-  },
-  categoryTitle: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    textAlign: "center",
   },
   bottomBar: {
     flexDirection: "row",

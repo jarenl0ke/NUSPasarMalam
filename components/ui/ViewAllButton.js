@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 5,
-    alignSelf: "flex-start", // Align the button to the left
+    alignSelf: "flex-start",
   },
   viewAllButtonText: {
     color: "#FFFFFF",
